@@ -1,0 +1,3 @@
+[submodule "maddpg"]
+	path = maddpg
+	url = git@github.com:florayym/maddpg.git
