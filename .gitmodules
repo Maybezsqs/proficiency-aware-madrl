@@ -1,3 +1,0 @@
-[submodule "maddpg"]
-	path = maddpg
-	url = git@github.com:openai/maddpg.git
