@@ -10,7 +10,7 @@ class Scenario(BaseScenario):
         world.dim_c = 4
         #world.damping = 1
         num_good_agents = 2
-        num_adversaries = 4
+        num_adversaries = 2
         num_agents = num_adversaries + num_good_agents
         num_landmarks = 1
         num_food = 2
@@ -285,5 +285,3 @@ class Scenario(BaseScenario):
                 [agent.state.p_vel] + [agent.state.p_pos] + entity_pos + other_pos + other_vel + in_forest + comm)
         else:
             return np.concatenate([agent.state.p_vel] + [agent.state.p_pos] + entity_pos + other_pos + in_forest + other_vel)
-
-

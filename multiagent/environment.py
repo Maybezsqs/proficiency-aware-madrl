@@ -158,6 +158,7 @@ class MultiAgentEnv(gym.Env):
 
         if agent.movable:
             # physical action
+            # Currently default false
             if self.discrete_action_input:
                 agent.action.u = np.zeros(self.world.dim_p)
                 # process discrete action
@@ -218,7 +219,7 @@ class MultiAgentEnv(gym.Env):
                 # import rendering only if we need it (and don't import for headless machines)
                 #from gym.envs.classic_control import rendering
                 from multiagent import rendering
-                self.viewers[i] = rendering.Viewer(700,700)
+                self.viewers[i] = rendering.Viewer(500,825) # change from (700,700)
 
         # create rendering geometry
         if self.render_geoms is None:
@@ -227,8 +228,47 @@ class MultiAgentEnv(gym.Env):
             from multiagent import rendering
             self.render_geoms = []
             self.render_geoms_xform = []
+            building_coordination = [[(-0.126585027793863,16.8195412372661),
+                                                (-1.26360571382314,26.9366491540346),
+                                                (-15.8471949722061,25.2976587627339),
+                                                (-14.7101742861769,15.1805508459654)],
+                                    [(-23.0767794626376,16.8481382394501),
+                                                (-15.1990122585185,17.6638842108194),
+                                                (-16.2936205373624,28.2346617605499),
+                                                (-24.1713877414815,27.4189157891806)],
+                                    [(-24.6491019813129,-2.8185334334924),
+                                                (-14.101147340091,-2.84946701921701),
+                                                (-14.0468980186871,15.6488534334924),
+                                                (-24.594852659909,15.679787019217)],
+                                    [(-21.5000842110591,-9.44961399824389),
+                                                (-14.0429792391866,-9.28372083691639),
+                                                (-14.1765157889409,-3.28108600175611),
+                                                (-21.6336207608134,-3.44697916308361)],
+                                    [(3.94535013848411,-3.36623865637194),
+                                                (14.493304779706,-3.39717224209654),
+                                                (14.5540698615159,17.3229386563719),
+                                                (4.00611522029401,17.3538722420965)],
+                                    [(8.04858173555005,-30.4958667788278),
+                                                (12.4781226874434,-30.5088571252425),
+                                                (12.53001826445,-12.8131332211722),
+                                                (8.10047731255663,-12.8001428747575)],
+                                    [(16.1178588413269,-32.2262223173032),
+                                                (20.5473997932202,-32.2392126637179),
+                                                (20.5917411586731,-17.1193776826968),
+                                                (16.1622002067798,-17.1063873362821)],
+                                    [(20.5041475657755,-32.1942704687495),
+                                                (24.9336885176689,-32.2072608151642),
+                                                (24.9464524342245,-27.8549295312505),
+                                                (20.5169114823311,-27.8419391848358)],
+                                    [(19.5743191710178,-16.0103447371203),
+                                                (25.002585828147,-16.0262640084564),
+                                                (25.0170808289822,-11.0836552628797),
+                                                (19.588814171853,-11.0677359915436)]]
+            i = 0
             for entity in self.world.entities:
-                geom = rendering.make_circle(entity.size)
+                # Test #
+                #geom = rendering.make_circle(entity.size)
+                geom = rendering.make_polygon(building_coordination[i])
                 xform = rendering.Transform()
                 if 'agent' in entity.name:
                     geom.set_color(*entity.color, alpha=0.5)
@@ -237,6 +277,7 @@ class MultiAgentEnv(gym.Env):
                 geom.add_attr(xform)
                 self.render_geoms.append(geom)
                 self.render_geoms_xform.append(xform)
+                i += 1
 
             # add geoms to viewer
             for viewer in self.viewers:
@@ -332,4 +373,5 @@ class BatchMultiAgentEnv(gym.Env):
         results_n = []
         for env in self.env_batch:
             results_n += env.render(mode, close)
+
         return results_n
