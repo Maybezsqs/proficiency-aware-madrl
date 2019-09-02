@@ -274,10 +274,10 @@ class MultiAgentEnv(gym.Env):
                     geom.set_color(*entity.color, alpha=0.5)
                 elif 'landmark' in entity.name:
                     #geom = rendering.make_polygon(building_coordinations[i])
-                    list = [(-0.126585027793863,16.8195412372661),
-                                                (-1.26360571382314,26.9366491540346),
-                                                (-15.8471949722061,25.2976587627339),
-                                                (-14.7101742861769,15.1805508459654)]
+                    list = [(0.01,0.02),
+                                                (0.03,0.02),
+                                                (0.03,0.04),
+                                                (0.01,0.04)]
                     geom = rendering.make_polygon(list)
                     xform = rendering.Transform()
                     geom.set_color(*entity.color)
