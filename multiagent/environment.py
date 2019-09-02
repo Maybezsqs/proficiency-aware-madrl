@@ -268,15 +268,17 @@ class MultiAgentEnv(gym.Env):
             # entities: agents + landmarks
             # and landmarks is different from agents in real robotic scenario
             for entity in self.world.entities:
+                geom = rendering.make_circle(entity.size)
+                xform = rendering.Transform()
                 if 'agent' in entity.name:
-                    geom = rendering.make_circle(entity.size)
-                    xform = rendering.Transform()
+                    #geom = rendering.make_circle(entity.size)
+                    #xform = rendering.Transform()
                     geom.set_color(*entity.color, alpha=0.5)
                 elif 'landmark' in entity.name:
                     #geom = rendering.make_polygon(building_coordinations[i])
-                    plist = [(0.045, 0.0), (-0.03011087728614863, -0.03344151714648273), (0.004703780847044385, -0.044753485291572304), (0.044016642033021254, -0.009356026086799155)]
-                    geom = rendering.make_polygon(plist)
-                    xform = rendering.Transform()
+                    #plist = [(0.045, 0.0), (-0.03011087728614863, -0.03344151714648273), (0.004703780847044385, -0.044753485291572304), (0.044016642033021254, -0.009356026086799155)]
+                    #geom = rendering.make_polygon(plist)
+                    #xform = rendering.Transform()
                     geom.set_color(*entity.color)
                 geom.add_attr(xform)
                 self.render_geoms.append(geom)
