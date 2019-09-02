@@ -219,7 +219,7 @@ class MultiAgentEnv(gym.Env):
                 # import rendering only if we need it (and don't import for headless machines)
                 #from gym.envs.classic_control import rendering
                 from multiagent import rendering
-                self.viewers[i] = rendering.Viewer(500,825) # change from (700,700)
+                self.viewers[i] = rendering.Viewer(700,700)
 
         # create rendering geometry
         if self.render_geoms is None:
@@ -274,10 +274,11 @@ class MultiAgentEnv(gym.Env):
                     geom.set_color(*entity.color, alpha=0.5)
                 elif 'landmark' in entity.name:
                     #geom = rendering.make_polygon(building_coordinations[i])
-                    geom = rendering.make_polygon([(-0.126585027793863,16.8195412372661),
+                    list = [(-0.126585027793863,16.8195412372661),
                                                 (-1.26360571382314,26.9366491540346),
                                                 (-15.8471949722061,25.2976587627339),
-                                                (-14.7101742861769,15.1805508459654)])
+                                                (-14.7101742861769,15.1805508459654)]
+                    geom = rendering.make_polygon(list)
                     xform = rendering.Transform()
                     geom.set_color(*entity.color)
                 geom.add_attr(xform)
