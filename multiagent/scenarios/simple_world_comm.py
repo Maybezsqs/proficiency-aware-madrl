@@ -50,6 +50,7 @@ class Scenario(BaseScenario):
             landmark.movable = False
             landmark.size = 0.3
             landmark.boundary = False
+        # Landmarks in world: landmarks+food+forests
         world.landmarks += world.food
         world.landmarks += world.forests
         #world.landmarks += self.set_boundaries(world)  # world boundaries now penalized with negative reward

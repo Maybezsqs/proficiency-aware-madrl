@@ -269,26 +269,29 @@ class MultiAgentEnv(gym.Env):
             # and landmarks is different from agents in real robotic scenario
             
             ########
-            geom = rendering.make_polygon([(-0.01,0.01), (0.03,0.05), (0.06,0.08), (0.10,0.18)])
-            xform = rendering.Transform()
-            geom.set_color(1.0,0.0,0.0)
-            geom.add_attr(xform)
-            self.render_geoms.append(geom)
-            self.render_geoms_xform.append(xform)
+            #geom = rendering.make_polygon([(-0.01,0.01), (0.03,0.05), (0.06,0.08), (0.10,0.18)])
+            #xform = rendering.Transform()
+            #geom.set_color(1.0,0.0,0.0)
+            #geom.add_attr(xform)
+            #self.render_geoms.append(geom)
+            #self.render_geoms_xform.append(xform)
             ########
 
             for entity in self.world.entities:
                 #geom = rendering.make_circle(entity.size)
                 #xform = rendering.Transform()
-                if 'agent' in entity.name:
+                if 'landmark' in entity.name:
+                    geom = rendering.make_polygon(building_coordinations[i])
+                    #plist = [(0.045, 0.0), (-0.03011087728614863, -0.03344151714648273), (0.004703780847044385, -0.044753485291572304), (0.044016642033021254, -0.009356026086799155)]
+                    #geom = rendering.make_polygon(plist)
+                    xform = rendering.Transform()
+                    geom.set_color(*entity.color)
+                elif 'agent' in entity.name:
                     geom = rendering.make_circle(entity.size)
                     xform = rendering.Transform()
                     geom.set_color(*entity.color, alpha=0.5)
                 else:
-                    print(type(building_coordinations[i]), building_coordinations[i])
-                    geom = rendering.make_polygon(building_coordinations[i])
-                    #plist = [(0.045, 0.0), (-0.03011087728614863, -0.03344151714648273), (0.004703780847044385, -0.044753485291572304), (0.044016642033021254, -0.009356026086799155)]
-                    #geom = rendering.make_polygon(plist)
+                    geom = rendering.make_circle(entity.size)
                     xform = rendering.Transform()
                     geom.set_color(*entity.color)
                 geom.add_attr(xform)
