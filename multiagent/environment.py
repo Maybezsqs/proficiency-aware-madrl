@@ -268,7 +268,7 @@ class MultiAgentEnv(gym.Env):
             # entities: agents + landmarks
             # and landmarks is different from agents in real robotic scenario
             for entity in self.world.entities:
-                geom = rendering.make_circle(entity.size, fillder=False)
+                geom = rendering.make_circle(entity.size, filled=False)
                 xform = rendering.Transform()
                 if 'agent' in entity.name:
                     #geom = rendering.make_circle(entity.size)
