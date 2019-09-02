@@ -230,6 +230,7 @@ class FilledPolygon(Geom):
         elif len(self.v)  > 4 : glBegin(GL_POLYGON)
         else: glBegin(GL_TRIANGLES)
         for p in self.v:
+            # 3f: x,y,z,all in float
             glVertex3f(p[0], p[1],0)  # draw each vertex
         glEnd()
 
@@ -301,6 +302,7 @@ class Line(Geom):
 
     def render1(self):
         glBegin(GL_LINES)
+        # 2f: x,y, all in float
         glVertex2f(*self.start)
         glVertex2f(*self.end)
         glEnd()
