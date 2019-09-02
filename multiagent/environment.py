@@ -228,7 +228,7 @@ class MultiAgentEnv(gym.Env):
             from multiagent import rendering
             self.render_geoms = []
             self.render_geoms_xform = []
-            building_coordination = [[(-0.126585027793863,16.8195412372661),
+            building_coordinations = [[(-0.126585027793863,16.8195412372661),
                                                 (-1.26360571382314,26.9366491540346),
                                                 (-15.8471949722061,25.2976587627339),
                                                 (-14.7101742861769,15.1805508459654)],
@@ -265,14 +265,20 @@ class MultiAgentEnv(gym.Env):
                                                 (25.0170808289822,-11.0836552628797),
                                                 (19.588814171853,-11.0677359915436)]]
             i = 0
+            # entities: agents + landmarks
+            # and landmarks is different from agents in real robotic scenario
             for entity in self.world.entities:
-                # Test #
-                #geom = rendering.make_circle(entity.size)
-                geom = rendering.make_polygon(building_coordination[i])
-                xform = rendering.Transform()
                 if 'agent' in entity.name:
+                    geom = rendering.make_circle(entity.size)
+                    xform = rendering.Transform()
                     geom.set_color(*entity.color, alpha=0.5)
-                else:
+                elif 'landmark' in entity.name:
+                    #geom = rendering.make_polygon(building_coordinations[i])
+                    geom = rendering.make_polygon([(-0.126585027793863,16.8195412372661),
+                                                (-1.26360571382314,26.9366491540346),
+                                                (-15.8471949722061,25.2976587627339),
+                                                (-14.7101742861769,15.1805508459654)])
+                    xform = rendering.Transform()
                     geom.set_color(*entity.color)
                 geom.add_attr(xform)
                 self.render_geoms.append(geom)
