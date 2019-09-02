@@ -245,7 +245,6 @@ def make_circle(radius=10, res=30, filled=True):
     for i in range(res):
         ang = 2*math.pi*i / res
         points.append((math.cos(ang)*radius, math.sin(ang)*radius))
-    print(points)
     if filled:
         return FilledPolygon(points)
     else:
