@@ -211,7 +211,7 @@ class MultiAgentEnv(gym.Env):
                     else:
                         word = alphabet[np.argmax(other.state.c)]
                     message += (other.name + ' to ' + agent.name + ': ' + word + '   ')
-            print(message)
+            #print(message)
 
         for i in range(len(self.viewers)):
             # create viewers (if necessary)
@@ -274,10 +274,7 @@ class MultiAgentEnv(gym.Env):
                     geom.set_color(*entity.color, alpha=0.5)
                 elif 'landmark' in entity.name:
                     #geom = rendering.make_polygon(building_coordinations[i])
-                    list = [(0.01,0.02),
-                                                (0.03,0.02),
-                                                (0.03,0.04),
-                                                (0.01,0.04)]
+                    list = [(0.01,0.02), (0.03,0.02), (0.03,0.04), (0.01,0.04)]
                     geom = rendering.make_polygon(list)
                     xform = rendering.Transform()
                     geom.set_color(*entity.color)
