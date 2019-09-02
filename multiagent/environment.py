@@ -269,7 +269,7 @@ class MultiAgentEnv(gym.Env):
             # and landmarks is different from agents in real robotic scenario
             
             ########
-            geom = rendering.make_circle(3)
+            geom = rendering.make_circle(30)
             xform = rendering.Transform()
             geom.set_color(1,1,1)
             geom.add_attr(xform)
