@@ -248,6 +248,7 @@ class MultiAgentEnv(gym.Env):
                     geom.set_color(*entity.color)
                 else:
                     coorScaledList = []
+                    t = tuple()
                     if 'landmark' in entity.name:
                         for coor in self.world.building_coordinations[i]:
                             t = (coor[0] * 1.75 / 50, coor[1] * 1.75 / 82.5)
