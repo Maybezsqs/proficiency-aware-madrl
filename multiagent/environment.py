@@ -283,7 +283,11 @@ class MultiAgentEnv(gym.Env):
                 if 'landmark' in entity.name:
                     coorScaledList = []
                     for coor in building_coordinations[i]:
-                        coorScaledList.append(tuple(ele[0] / 50, ele[1] / 82.5) for ele in coor)
+                        verList = []
+                        for ele in coor:
+                            t = (ele[0] / 50, ele[1] / 82.5)
+                            verList.append(t)
+                        coorScaledList.append(verList)
                     geom = rendering.make_polygon(coorScaledList)
                     #xform = rendering.Transform()
                     geom.set_color(*entity.color)
