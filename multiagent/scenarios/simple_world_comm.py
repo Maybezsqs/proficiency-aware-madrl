@@ -48,7 +48,7 @@ class Scenario(BaseScenario):
             landmark.name = 'forest %d' % i
             landmark.collide = False
             landmark.movable = False
-            landmark.size = 0.3
+            landmark.size = 0.1
             landmark.boundary = False
         # Landmarks in world: landmarks+food+forests
         world.landmarks += world.food
@@ -94,7 +94,7 @@ class Scenario(BaseScenario):
             agent.color -= np.array([0.3, 0.3, 0.3]) if agent.leader else np.array([0, 0, 0])
             # random properties for landmarks
         for i, landmark in enumerate(world.landmarks):
-            landmark.color = np.array([0.25, 0.25, 0.25])
+            landmark.color = np.array([0.25, 0.50, 0.50])
         for i, landmark in enumerate(world.food):
             landmark.color = np.array([0.15, 0.15, 0.65])
         for i, landmark in enumerate(world.forests):
