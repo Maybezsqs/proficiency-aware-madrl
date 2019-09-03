@@ -247,7 +247,6 @@ class MultiAgentEnv(gym.Env):
                     geom.add_attr(xform)
                     self.render_geoms_xform.append(xform)
                 else:
-                    print("in else")
                     coorScaledList = []
                     if 'landmark' in entity.name:
                         for coor in self.world.building_coordinations[i]:
