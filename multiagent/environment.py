@@ -285,7 +285,7 @@ class MultiAgentEnv(gym.Env):
                     for coor in building_coordinations[i]:
                         coorScaledList.append(tuple(ele / 100 for ele in coor))
                     geom = rendering.make_polygon(coorScaledList)
-                    xform = rendering.Transform()
+                    xform = None
                     geom.set_color(*entity.color)
                     i += 1
                 elif 'agent' in entity.name:
