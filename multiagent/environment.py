@@ -264,7 +264,7 @@ class MultiAgentEnv(gym.Env):
                                                 (25.002585828147,-16.0262640084564),
                                                 (25.0170808289822,-11.0836552628797),
                                                 (19.588814171853,-11.0677359915436)]]
-            i = 0
+            
             # entities: agents + landmarks
             # and landmarks is different from agents in real robotic scenario
             
@@ -276,7 +276,7 @@ class MultiAgentEnv(gym.Env):
             #self.render_geoms.append(geom)
             #self.render_geoms_xform.append(xform)
             ########
-
+            i = 0
             for entity in self.world.entities:
                 #geom = rendering.make_circle(entity.size)
                 #xform = rendering.Transform()
@@ -287,6 +287,7 @@ class MultiAgentEnv(gym.Env):
                     geom = rendering.make_polygon(coorScaledList)
                     xform = rendering.Transform()
                     geom.set_color(*entity.color)
+                    i += 1
                 elif 'agent' in entity.name:
                     geom = rendering.make_circle(entity.size)
                     xform = rendering.Transform()
@@ -298,7 +299,6 @@ class MultiAgentEnv(gym.Env):
                 geom.add_attr(xform)
                 self.render_geoms.append(geom)
                 self.render_geoms_xform.append(xform)
-                i += 1
 
             # add geoms to viewer
             for viewer in self.viewers:
