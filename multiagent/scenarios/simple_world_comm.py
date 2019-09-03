@@ -125,6 +125,12 @@ class Scenario(BaseScenario):
                                     [(28.0,2.0),
                                                 (27.5,-11.0),
                                                 (17.5,-10.0)]]
+        world.forest_coordinations = [[(1.0,21.5),
+                                                (18.0,36.0),
+                                                (4.0,40.0)],
+                                    [(7.0,17.5),
+                                                (27.5,17.5),
+                                                (24.5,-30.5)]]
         # Landmarks in world: landmarks+food+forests
         world.landmarks += world.food
         world.landmarks += world.forests

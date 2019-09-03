@@ -81,6 +81,7 @@ class Agent(Entity):
         # for KSU map
         self.building_coordinations = []
         self.lawn_coordinations = []
+        self.forest_coordinations = []
 
 # multi-agent world
 class World(object):
