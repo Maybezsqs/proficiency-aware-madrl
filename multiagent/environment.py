@@ -235,44 +235,34 @@ class MultiAgentEnv(gym.Env):
             for entity in self.world.entities:
                 #geom = rendering.make_circle(entity.size)
                 #xform = rendering.Transform()
-                if 'landmark' in entity.name:
-                    coorScaledList = []
-                    for coor in self.world.building_coordinations[i]:
-                        t = (coor[0] * 1.75 / 50, coor[1] * 1.75 / 82.5)
-                        coorScaledList.append(t)
-                    geom = rendering.make_polygon(coorScaledList)
-                    #xform = rendering.Transform()
-                    geom.set_color(*entity.color)
-                    i += 1
-                elif 'lawn' in entity.name:
-                    coorScaledList = []
-                    for coor in self.world.lawn_coordinations[j]:
-                        t = (coor[0] * 1.75 / 50, coor[1] * 1.75 / 82.5)
-                        coorScaledList.append(t)
-                    geom = rendering.make_polygon(coorScaledList)
-                    geom.set_color(*entity.color)
-                    j += 1
-                elif 'forest' in entity.name:
-                    coorScaledList = []
-                    for coor in self.world.forest_coordinations[k]:
-                        t = (coor[0] * 1.75 / 50, coor[1] * 1.75 / 82.5)
-                        coorScaledList.append(t)
-                    geom = rendering.make_polygon(coorScaledList)
-                    geom.set_color(*entity.color)
-                    k += 1
-                else:
+                if 'agent' or 'food' in entity.name:
+                    geom = rendering.make_circle(entity.size)
                     if 'agent' in entity.name:
-                        geom = rendering.make_circle(entity.size)
-                        xform = rendering.Transform()
                         geom.set_color(*entity.color, alpha=0.5)
                     else:
-                        # for food
-                        geom = rendering.make_circle(entity.size)
-                        xform = rendering.Transform()
                         geom.set_color(*entity.color)
+                    # Only agents and food will transform currently
+                    xform = rendering.Transform()
                     geom.add_attr(xform)
                     self.render_geoms_xform.append(xform)
-                self.render_geoms.append(geom)
+                else:
+                    coorScaledList = []
+                    if 'landmark' in entity.name:
+                        for coor in self.world.building_coordinations[i]:
+                            t = (coor[0] * 1.75 / 50, coor[1] * 1.75 / 82.5)
+                        i += 1
+                    elif 'lawn' in entity.name:
+                        for coor in self.world.lawn_coordinations[j]:
+                            t = (coor[0] * 1.75 / 50, coor[1] * 1.75 / 82.5)
+                        j += 1
+                    elif 'forest' in entity.name:
+                        for coor in self.world.forest_coordinations[k]:
+                            t = (coor[0] * 1.75 / 50, coor[1] * 1.75 / 82.5)
+                        k += 1
+                    coorScaledList.append(t)
+                    geom = rendering.make_polygon(coorScaledList)
+                    geom.set_color(*entity.color)
+            self.render_geoms.append(geom)
 
             # add geoms to viewer
             for viewer in self.viewers:
