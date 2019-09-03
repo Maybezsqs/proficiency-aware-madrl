@@ -237,15 +237,16 @@ class MultiAgentEnv(gym.Env):
                 #xform = rendering.Transform()
                 if 'agent' or 'food' in entity.name:
                     geom = rendering.make_circle(entity.size)
+                    # Only agents and food will transform currently
+                    xform = rendering.Transform()
                     if 'agent' in entity.name:
                         geom.set_color(*entity.color, alpha=0.5)
                     else:
                         geom.set_color(*entity.color)
-                    # Only agents and food will transform currently
-                    xform = rendering.Transform()
                     geom.add_attr(xform)
                     self.render_geoms_xform.append(xform)
                 else:
+                    print("in else")
                     coorScaledList = []
                     if 'landmark' in entity.name:
                         for coor in self.world.building_coordinations[i]:
