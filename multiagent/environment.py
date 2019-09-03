@@ -285,7 +285,7 @@ class MultiAgentEnv(gym.Env):
                     for coor in building_coordinations[i]:
                         verList = []
                         for ele in coor:
-                            t = (ele[0] / 50, ele[1] / 82.5)
+                            t = (ele[0] / 50.0, float(ele[1]) / 82.5)
                             verList.append(t)
                         coorScaledList.append(verList)
                     geom = rendering.make_polygon(coorScaledList)
