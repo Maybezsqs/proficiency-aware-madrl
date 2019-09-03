@@ -298,8 +298,8 @@ class MultiAgentEnv(gym.Env):
                         xform = rendering.Transform()
                         geom.set_color(*entity.color)
                     geom.add_attr(xform)
-                    self.render_geoms.append(geom)
                     self.render_geoms_xform.append(xform)
+                self.render_geoms.append(geom)
 
             # add geoms to viewer
             for viewer in self.viewers:
