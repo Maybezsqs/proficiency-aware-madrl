@@ -246,7 +246,7 @@ class MultiAgentEnv(gym.Env):
                     i += 1
                 elif 'lawn' in entity.name:
                     coorScaledList = []
-                    for coor in self.world.lawn_coordinations[j]:
+                    for coor in self.world.forest_coordinations[j]:
                         t = (coor[0] * 1.75 / 50, coor[1] * 1.75 / 82.5)
                         coorScaledList.append(t)
                     geom = rendering.make_polygon(coorScaledList)
