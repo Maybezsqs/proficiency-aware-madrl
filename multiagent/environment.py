@@ -283,6 +283,7 @@ class MultiAgentEnv(gym.Env):
                 if 'landmark' in entity.name:
                     coorScaledList = []
                     for coor in building_coordinations[i]:
+                        print(type(coor),coor)
                         verList = []
                         for ele in coor:
                             print(type(ele[1]),ele[0])
