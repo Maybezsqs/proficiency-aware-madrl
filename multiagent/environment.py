@@ -285,8 +285,8 @@ class MultiAgentEnv(gym.Env):
                     for coor in building_coordinations[i]:
                         verList = []
                         for ele in coor:
-                            first =ele[0] / 50
-                            second = ele[0] / 82.5
+                            first =ele[0]
+                            second = ele[1] / 82.5
                             t = (first, second)
                             verList.append(t)
                         coorScaledList.append(verList)
