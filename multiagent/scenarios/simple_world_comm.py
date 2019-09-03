@@ -15,7 +15,7 @@ class Scenario(BaseScenario):
         num_landmarks = 9
         num_food = 2
         num_forests = 2
-        num_lawns = 8
+        num_lawns = 7 #8
         # add agents
         world.agents = [Agent() for i in range(num_agents)]
         for i, agent in enumerate(world.agents):
