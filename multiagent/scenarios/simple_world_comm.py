@@ -12,7 +12,7 @@ class Scenario(BaseScenario):
         num_good_agents = 2
         num_adversaries = 2
         num_agents = num_adversaries + num_good_agents
-        num_landmarks = 1
+        num_landmarks = 9
         num_food = 2
         num_forests = 2
         # add agents
