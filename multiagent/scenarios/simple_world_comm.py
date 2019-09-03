@@ -14,7 +14,7 @@ class Scenario(BaseScenario):
         num_agents = num_adversaries + num_good_agents
         num_landmarks = 9
         num_food = 2
-        num_forests = 0
+        num_forests = 2
         # add agents
         world.agents = [Agent() for i in range(num_agents)]
         for i, agent in enumerate(world.agents):
@@ -111,7 +111,7 @@ class Scenario(BaseScenario):
             landmark.state.p_pos = np.random.uniform(-0.9, +0.9, world.dim_p)
             landmark.state.p_vel = np.zeros(world.dim_p)
         for i, landmark in enumerate(world.forests):
-            landmark.state.p_pos = np.random.uniform(-0.9, +0.9, world.dim_p)
+            landmark.state.p_pos = np.random.uniform(-0.9, -0.8, world.dim_p)
             landmark.state.p_vel = np.zeros(world.dim_p)
 
     def benchmark_data(self, agent, world):
