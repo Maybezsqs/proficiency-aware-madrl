@@ -98,6 +98,7 @@ class Scenario(BaseScenario):
                                                 (25.002585828147,-16.0262640084564),
                                                 (25.0170808289822,-11.0836552628797),
                                                 (19.588814171853,-11.0677359915436)]]
+        # TODO currently without the lawn of circle shape
         world.lawn_coordinations = [[(-19.0,-12.0),
                                                 (2.0,-12.0),
                                                 (-4.5,-22.0),
@@ -286,6 +287,8 @@ class Scenario(BaseScenario):
                         rew += 5
         return rew
 
+    # Observation settings below is very important!! Keep in mind!! Need more modifications!!
+
 
     def observation2(self, agent, world):
         # get positions of all entities in this agent's reference frame
@@ -317,6 +320,7 @@ class Scenario(BaseScenario):
             if not entity.boundary:
                 entity_pos.append(entity.state.p_pos - agent.state.p_pos)
 
+        # Self in forest detection
         in_forest = [np.array([-1]), np.array([-1])]
         inf1 = False
         inf2 = False
@@ -332,7 +336,7 @@ class Scenario(BaseScenario):
             if not entity.boundary:
                 food_pos.append(entity.state.p_pos - agent.state.p_pos)
         # communication of all other agents
-        comm = []
+        comm = []   
         other_pos = []
         other_vel = []
         for other in world.agents:
@@ -340,6 +344,8 @@ class Scenario(BaseScenario):
             comm.append(other.state.c)
             oth_f1 = self.is_collision(other, world.forests[0])
             oth_f2 = self.is_collision(other, world.forests[1])
+            ## Settings about same forest vision block
+            ## should be in the same forest or both not in the forest or is the leader itself than can have the vision
             if (inf1 and oth_f1) or (inf2 and oth_f2) or (not inf1 and not oth_f1 and not inf2 and not oth_f2) or agent.leader:  #without forest vis
                 other_pos.append(other.state.p_pos - agent.state.p_pos)
                 if not other.adversary:

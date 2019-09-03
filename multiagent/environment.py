@@ -231,7 +231,7 @@ class MultiAgentEnv(gym.Env):
 
             # entities: agents + landmarks
             # and landmarks is different from agents in real robotic scenario
-            i = 0
+            i,j = 0
             for entity in self.world.entities:
                 #geom = rendering.make_circle(entity.size)
                 #xform = rendering.Transform()
@@ -244,12 +244,21 @@ class MultiAgentEnv(gym.Env):
                     #xform = rendering.Transform()
                     geom.set_color(*entity.color)
                     i += 1
+                elif 'lawn' in entity.name:
+                    coorScaledList = []
+                    for coor in self.world.building_coordinations[j]:
+                        t = (coor[0] * 1.75 / 50, coor[1] * 1.75 / 82.5)
+                        coorScaledList.append(t)
+                    geom = rendering.make_polygon(coorScaledList)
+                    geom.set_color(*entity.color)
+                    j += 1
                 else:
                     if 'agent' in entity.name:
                         geom = rendering.make_circle(entity.size)
                         xform = rendering.Transform()
                         geom.set_color(*entity.color, alpha=0.5)
                     else:
+                        # for food, forest
                         geom = rendering.make_circle(entity.size)
                         xform = rendering.Transform()
                         geom.set_color(*entity.color)
