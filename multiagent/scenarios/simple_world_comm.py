@@ -131,7 +131,7 @@ class Scenario(BaseScenario):
                                     [(7.0,17.5),
                                                 (27.5,17.5),
                                                 (24.5,30.5)]]
-        # Landmarks in world: landmarks+food+forests
+        # Landmarks in world: landmarks + food + forests
         world.landmarks += world.food
         world.landmarks += world.forests
         world.landmarks += world.lawns

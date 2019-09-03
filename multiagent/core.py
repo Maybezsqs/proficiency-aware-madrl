@@ -78,7 +78,7 @@ class Agent(Entity):
         # script behavior to execute
         self.action_callback = None
 
-        # for KSU map
+        # for KSU map coordinations
         self.building_coordinations = []
         self.lawn_coordinations = []
         self.forest_coordinations = []
@@ -88,6 +88,7 @@ class World(object):
     def __init__(self):
         # list of agents and entities (can change at execution-time!)
         self.agents = []
+        # landmarks=buildings,food,forests,lawns
         self.landmarks = []
         # communication channel dimensionality
         self.dim_c = 0
@@ -106,7 +107,8 @@ class World(object):
     # return all entities in the world
     @property
     def entities(self):
-        return self.agents + self.landmarks
+        # the order determines the layer order(upfront or back)
+        return self.landmarks + self.agents
 
     # return all agents controllable by external policies
     @property
