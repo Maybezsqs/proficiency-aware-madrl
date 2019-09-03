@@ -273,7 +273,8 @@ class MultiAgentEnv(gym.Env):
             else:
                 pos = self.agents[i].state.p_pos
             self.viewers[i].set_bounds(pos[0]-cam_range,pos[0]+cam_range,pos[1]-cam_range,pos[1]+cam_range)
-            # update geometry positions every episode: don't want this in KSU map to change building, forest and food every time
+            # update geometry positions every episode
+            # don't want this in KSU map to change building, forest and food every time
             # So changed entities to agents
             for e, entity in enumerate(self.world.agents):
                 self.render_geoms_xform[e].set_translation(*entity.state.p_pos)
