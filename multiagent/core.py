@@ -78,6 +78,10 @@ class Agent(Entity):
         # script behavior to execute
         self.action_callback = None
 
+        # for KSU map
+        self.building_coordinations = []
+        self.lawn_coordinations = []
+
 # multi-agent world
 class World(object):
     def __init__(self):

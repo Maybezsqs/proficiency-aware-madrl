@@ -11,7 +11,7 @@ import tensorflow.contrib.layers as layers
 def parse_args():
     parser = argparse.ArgumentParser("Reinforcement Learning experiments for multiagent environments")
     # Environment
-    parser.add_argument("--scenario", type=str, default="simple", help="name of the scenario script")
+    parser.add_argument("--scenario", type=str, default="simple_world_comm", help="name of the scenario script(default:simple_world_comm)")
     parser.add_argument("--max-episode-len", type=int, default=25, help="maximum episode length")
     parser.add_argument("--num-episodes", type=int, default=6000, help="number of episodes")
     parser.add_argument("--num-adversaries", type=int, default=0, help="number of adversaries")
