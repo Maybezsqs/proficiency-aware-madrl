@@ -236,6 +236,7 @@ class MultiAgentEnv(gym.Env):
                 #geom = rendering.make_circle(entity.size)
                 #xform = rendering.Transform()
                 if 'agent' or 'food' in entity.name:
+                    print(entity.name)
                     geom = rendering.make_circle(entity.size)
                     # Only agents and food will transform currently
                     xform = rendering.Transform()
