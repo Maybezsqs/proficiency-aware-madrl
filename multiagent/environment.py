@@ -263,7 +263,7 @@ class MultiAgentEnv(gym.Env):
                     coorScaledList.append(t)
                     geom = rendering.make_polygon(coorScaledList)
                     geom.set_color(*entity.color)
-            self.render_geoms.append(geom)
+                self.render_geoms.append(geom)
 
             # add geoms to viewer
             for viewer in self.viewers:
