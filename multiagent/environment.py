@@ -248,20 +248,21 @@ class MultiAgentEnv(gym.Env):
                     geom.set_color(*entity.color)
                 else:
                     coorScaledList = []
-                    t = tuple()
                     if 'landmark' in entity.name:
                         for coor in self.world.building_coordinations[i]:
                             t = (coor[0] * 1.75 / 50, coor[1] * 1.75 / 82.5)
+                            coorScaledList.append(t)
                         i += 1
                     elif 'lawn' in entity.name:
                         for coor in self.world.lawn_coordinations[j]:
                             t = (coor[0] * 1.75 / 50, coor[1] * 1.75 / 82.5)
+                            coorScaledList.append(t)
                         j += 1
                     elif 'forest' in entity.name:
                         for coor in self.world.forest_coordinations[k]:
                             t = (coor[0] * 1.75 / 50, coor[1] * 1.75 / 82.5)
+                            coorScaledList.append(t)
                         k += 1
-                    coorScaledList.append(t)
                     geom = rendering.make_polygon(coorScaledList)
                     geom.set_color(*entity.color)
                 self.render_geoms.append(geom)
