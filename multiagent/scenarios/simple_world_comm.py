@@ -98,7 +98,7 @@ class Scenario(BaseScenario):
             agent.color -= np.array([0.3, 0.3, 0.3]) if agent.leader else np.array([0, 0, 0])
             # random properties for landmarks
         for i, landmark in enumerate(world.landmarks):
-            landmark.color = np.array([0.20, 0.6, 0.70])
+            landmark.color = np.array([0.40, 0.70, 0.60])
         for i, landmark in enumerate(world.food):
             landmark.color = np.array([0.15, 0.15, 0.65])
         for i, landmark in enumerate(world.forests):
