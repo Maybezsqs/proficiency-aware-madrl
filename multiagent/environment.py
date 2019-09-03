@@ -285,20 +285,21 @@ class MultiAgentEnv(gym.Env):
                     for coor in building_coordinations[i]:
                         coorScaledList.append(tuple(ele / 100 for ele in coor))
                     geom = rendering.make_polygon(coorScaledList)
-                    xform = None
+                    #xform = rendering.Transform()
                     geom.set_color(*entity.color)
                     i += 1
-                elif 'agent' in entity.name:
-                    geom = rendering.make_circle(entity.size)
-                    xform = rendering.Transform()
-                    geom.set_color(*entity.color, alpha=0.5)
                 else:
-                    geom = rendering.make_circle(entity.size)
-                    xform = rendering.Transform()
-                    geom.set_color(*entity.color)
-                geom.add_attr(xform)
-                self.render_geoms.append(geom)
-                self.render_geoms_xform.append(xform)
+                    if 'agent' in entity.name:
+                        geom = rendering.make_circle(entity.size)
+                        xform = rendering.Transform()
+                        geom.set_color(*entity.color, alpha=0.5)
+                    else:
+                        geom = rendering.make_circle(entity.size)
+                        xform = rendering.Transform()
+                        geom.set_color(*entity.color)
+                    geom.add_attr(xform)
+                    self.render_geoms.append(geom)
+                    self.render_geoms_xform.append(xform)
 
             # add geoms to viewer
             for viewer in self.viewers:
