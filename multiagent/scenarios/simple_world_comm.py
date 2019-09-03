@@ -89,7 +89,7 @@ class Scenario(BaseScenario):
 
     def reset_world(self, world):
         # random properties for agents
-        # building:
+        # grey:building:[0.50, 0.60, 0.60]
         # dark green:forest:[0.25, 0.50, 0.50]
         # shadow green:lawn:[0.6, 0.9, 0.6]
         # blue:good food:[0.15, 0.15, 0.65]
@@ -98,7 +98,7 @@ class Scenario(BaseScenario):
             agent.color -= np.array([0.3, 0.3, 0.3]) if agent.leader else np.array([0, 0, 0])
             # random properties for landmarks
         for i, landmark in enumerate(world.landmarks):
-            landmark.color = np.array([0.50, 0.60, 0.60])
+            landmark.color = np.array([0.50, 0.55 0.55])
         for i, landmark in enumerate(world.food):
             landmark.color = np.array([0.15, 0.15, 0.65])
         for i, landmark in enumerate(world.forests):
