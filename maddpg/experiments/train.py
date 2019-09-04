@@ -116,9 +116,9 @@ def train(arglist):
         print('Starting iterations...')
         while True:
             # get action: for each agent i, select action ai = i (oi) + Nt w.r.t. the current policy and exploration
-            # Through training
+            # Through training(maddpg)
             action_n = [agent.action(obs) for agent, obs in zip(trainers,obs_n)] # obs_n: 4x62(first) then 4x56; 4 because of 4 agents(trainers) in total
-            print(len(action_n),len(action_n[0]))
+            # action_n: 4x9
             # environment step: Execute actions a = (a1; : : : ; aN) and observe reward r and new state x0
             new_obs_n, rew_n, done_n, info_n = env.step(action_n)
             episode_step += 1
@@ -126,7 +126,8 @@ def train(arglist):
             terminal = (episode_step >= arglist.max_episode_len)
             # collect experience
             for i, agent in enumerate(trainers):
-                agent.experience(obs_n[i], action_n[i], rew_n[i], new_obs_n[i], done_n[i], terminal)
+                agent.experience(obs_n[i], action_n[i], rew_n[i], new_obs_n[i], done_n[i], terminal) # remember this experience in buffer (maddpg)
+            # x <-- x'
             obs_n = new_obs_n
 
             for i, rew in enumerate(rew_n):
@@ -134,6 +135,7 @@ def train(arglist):
                 agent_rewards[i][-1] += rew
 
             if done or terminal:
+                print("done="+str(done),"terminal="+str(terminal),"episode="+str(episode_step))
                 obs_n = env.reset()
                 episode_step = 0
                 episode_rewards.append(0)
