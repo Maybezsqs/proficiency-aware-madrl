@@ -11,8 +11,8 @@ import tensorflow.contrib.layers as layers
 import datetime
 import pytz
 utc_now = pytz.utc.localize(datetime.datetime.utcnow())
-eastern_now = utc_now.astimezone(pytz.timezone("America/New_York"))
-t_now_format = eastern_now.isoformat().replace('T','-').split(':')[0]
+t_eastern= utc_now.astimezone(pytz.timezone("America/New_York"))
+t_now_format = str(t_eastern.month) + '-' + str(t_eastern.day) + '-' + str(t_eastern.hour) + '-' + str(t_eastern.minute)
 
 def parse_args():
     parser = argparse.ArgumentParser("Reinforcement Learning experiments for multiagent environments")
