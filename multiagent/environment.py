@@ -18,6 +18,7 @@ class MultiAgentEnv(gym.Env):
         self.world = world
         self.agents = self.world.policy_agents
         # set required vectorized gym env property
+        # TODO Maybe the policy agents should exclude the adversary one
         self.n = len(world.policy_agents)
         # scenario callbacks
         self.reset_callback = reset_callback
@@ -32,7 +33,7 @@ class MultiAgentEnv(gym.Env):
         # if true, even the action is continuous, action will be performed discretely
         self.force_discrete_action = world.discrete_action if hasattr(world, 'discrete_action') else False
         # if true, every agent has the same reward
-        print("cooperative?"+str(hasattr(world, 'collaborative')))
+        # TODO Currently, hasattr(world, 'collaborative') is False
         self.shared_reward = world.collaborative if hasattr(world, 'collaborative') else False
         self.time = 0
 
@@ -125,6 +126,7 @@ class MultiAgentEnv(gym.Env):
         return self.info_callback(agent, self.world)
 
     # get observation for a particular agent
+    # default in train.py, it is not None, but always set to scenario.observation
     def _get_obs(self, agent):
         if self.observation_callback is None:
             return np.zeros(0)

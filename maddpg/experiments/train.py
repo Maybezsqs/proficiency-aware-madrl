@@ -14,7 +14,9 @@ def parse_args():
     parser.add_argument("--scenario", type=str, default="simple_world_comm", help="name of the scenario script(default:simple_world_comm)")
     parser.add_argument("--max-episode-len", type=int, default=25, help="maximum episode length")
     parser.add_argument("--num-episodes", type=int, default=60000, help="number of episodes")
-    parser.add_argument("--num-adversaries", type=int, default=0, help="number of adversaries")
+    # TODO adversaries should not be 0 in our competitive environment
+    # default=0, I changed it to 1 to equals the num_adversaries in Scenario simple_world_comm
+    parser.add_argument("--num-adversaries", type=int, default=1, help="number of adversaries")
     parser.add_argument("--good-policy", type=str, default="maddpg", help="policy for good agents")
     parser.add_argument("--adv-policy", type=str, default="maddpg", help="policy of adversaries")
     # Core training parameters
@@ -64,6 +66,7 @@ def get_trainers(env, num_adversaries, obs_shape_n, arglist):
     trainers = []
     model = mlp_model
     trainer = MADDPGAgentTrainer
+    # First adversaries, then good agents
     for i in range(num_adversaries):
         trainers.append(trainer(
             "agent_%d" % i, model, obs_shape_n, env.action_space, i, arglist,
@@ -80,7 +83,9 @@ def train(arglist):
         # Create environment
         env = make_env(arglist.scenario, arglist, arglist.benchmark)
         # Create agent trainers
+        # The number of agent trainers equals env.n(the number agents using policy to control`)
         obs_shape_n = [env.observation_space[i].shape for i in range(env.n)]
+        # TODO Change the number of adversary
         num_adversaries = min(env.n, arglist.num_adversaries)
         trainers = get_trainers(env, num_adversaries, obs_shape_n, arglist)
         print('Using good policy {} and adv policy {}'.format(arglist.good_policy, arglist.adv_policy))
@@ -91,16 +96,18 @@ def train(arglist):
         # Load previous results, if necessary
         if arglist.load_dir == "":
             arglist.load_dir = arglist.save_dir
+        # Below are deleted because of the error exists in the OpenAI open sourced code train.py
         #if arglist.display or arglist.restore or arglist.benchmark:
         #    print('Loading previous state...')
         #    U.load_state(arglist.load_dir)
 
         episode_rewards = [0.0]  # sum of rewards for all agents
-        agent_rewards = [[0.0] for _ in range(env.n)]  # individual agent reward
+        agent_rewards = [[0.0] for _ in range(env.n)]  # individual policy agent reward
         final_ep_rewards = []  # sum of rewards for training curve
         final_ep_ag_rewards = []  # agent rewards for training curve
         agent_info = [[[]]]  # placeholder for benchmarking info
         saver = tf.train.Saver()
+        # Initial observation: the just reset world
         obs_n = env.reset()
         episode_step = 0
         train_step = 0

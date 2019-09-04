@@ -98,7 +98,7 @@ class Scenario(BaseScenario):
             agent.silent = True if i > 0 else False # Only the leader can speak and others are all silent
             
             # Adversaries special
-            agent.adversary = True if i < num_adversaries else False
+            agent.adversary = True if i < num_adversaries else False # This is very important, first adversaries, then good agents
             agent.size = 0.075 if agent.adversary else 0.045
             agent.accel = 3.0 if agent.adversary else 4.0
             #agent.accel = 20.0 if agent.adversary else 25.0
@@ -304,7 +304,6 @@ class Scenario(BaseScenario):
 
     # This is not used
     def observation2(self, agent, world):
-        print("in observation2")
         # get positions of all entities in this agent's reference frame
         entity_pos = []
         for entity in world.landmarks:
@@ -327,6 +326,9 @@ class Scenario(BaseScenario):
                 other_vel.append(other.state.p_vel)
         return np.concatenate([agent.state.p_vel] + [agent.state.p_pos] + entity_pos + other_pos + other_vel)
 
+
+    # Called in _get_obs(self, agent) of environment.py
+    # get observation for a particular agent
     def observation(self, agent, world):
         # get positions of all entities in this agent's reference frame
         entity_pos = []
