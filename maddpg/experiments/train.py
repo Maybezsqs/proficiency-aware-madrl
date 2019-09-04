@@ -32,7 +32,7 @@ def parse_args():
     parser.add_argument("--num-units", type=int, default=64, help="number of units in the mlp")
     # Checkpointing
     parser.add_argument("--exp-name", type=str, default="swc" + '-' + t_now_format, help="name of the experiment")
-    parser.add_argument("--save-dir", type=str, default="~/maddpg_misc/results/", help="directory in which training state and model should be saved")
+    parser.add_argument("--save-dir", type=str, default="tmp/policy/", help="directory in which training state and model should be saved")
     parser.add_argument("--save-rate", type=int, default=1000, help="save model once every time this many episodes are completed")
     parser.add_argument("--load-dir", type=str, default="", help="directory in which training state and model are loaded")
     # Evaluation
@@ -41,7 +41,7 @@ def parse_args():
     parser.add_argument("--benchmark", action="store_true", default=False)
     parser.add_argument("--benchmark-iters", type=int, default=100000, help="number of iterations run for benchmarking")
     parser.add_argument("--benchmark-dir", type=str, default="./benchmark_files/", help="directory where benchmark data is saved")
-    parser.add_argument("--plots-dir", type=str, default="~/maddpg_misc/learning_curves/", help="directory where plot data is saved")
+    parser.add_argument("--plots-dir", type=str, default="tmp/learning_curves/", help="directory where plot data is saved")
     return parser.parse_args()
 
 def mlp_model(input, num_outputs, scope, reuse=False, num_units=64, rnn_cell=None):
@@ -100,12 +100,13 @@ def train(arglist):
         U.initialize()
 
         # Load previous results, if necessary
-        if arglist.load_dir == "":
-            arglist.load_dir = arglist.save_dir
+        # Does not apply any more
+        #if arglist.load_dir == "":
+        #    arglist.load_dir = arglist.save_dir
         # Below are deleted because of the error exists in the OpenAI open sourced code train.py
-        #if arglist.display or arglist.restore or arglist.benchmark:
-        #    print('Loading previous state...')
-        #    U.load_state(arglist.load_dir)
+        if arglist.display or arglist.restore or arglist.benchmark:
+            print('Loading previous state...')
+            U.load_state(arglist.load_dir)
 
         episode_rewards = [0.0]  # sum of rewards for all agents
         agent_rewards = [[0.0] for _ in range(env.n)]  # individual policy agent reward
