@@ -87,11 +87,11 @@ class World(object):
         # landmarks=buildings,food,forests,lawns
         self.landmarks = []
         # communication channel dimensionality
-        self.dim_c = 0
+        self.dim_c = 0 # ?
         # position dimensionality
-        self.dim_p = 2
+        self.dim_p = 2 # xy
         # color dimensionality
-        self.dim_color = 3
+        self.dim_color = 3 # rgb
         # simulation timestep
         self.dt = 0.1
         # physical damping
@@ -182,7 +182,9 @@ class World(object):
             agent.state.c = np.zeros(self.dim_c)
         else:
             noise = np.random.randn(*agent.action.c.shape) * agent.c_noise if agent.c_noise else 0.0
-            agent.state.c = agent.action.c + noise      
+            agent.state.c = agent.action.c + noise
+        print("agent.action.c:"+str(agent.action.c))
+        print("agent.state.c:"+str(agent.state.c))
 
     # get collision forces for any contact between two entities
     def get_collision_force(self, entity_a, entity_b):

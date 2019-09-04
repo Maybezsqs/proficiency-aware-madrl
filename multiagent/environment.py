@@ -219,6 +219,7 @@ class MultiAgentEnv(gym.Env):
                 # import rendering only if we need it (and don't import for headless machines)
                 #from gym.envs.classic_control import rendering
                 from multiagent import rendering
+                # The size of screen
                 self.viewers[i] = rendering.Viewer(500,825)
 
         # create rendering geometry

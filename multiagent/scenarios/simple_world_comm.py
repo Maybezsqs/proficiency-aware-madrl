@@ -7,14 +7,15 @@ class Scenario(BaseScenario):
     def make_world(self):
         world = World()
         # set any world properties first
+        # Set communication state dimension
+        # State: set and changed by action
         world.dim_c = 4
         #world.damping = 1
-        num_good_agents = 2
+        num_good_agents = 3
         num_adversaries = 1
         num_agents = num_adversaries + num_good_agents
         
         # For KSU
-        '''
         world.building_coordinations = [[(-0.126585027793863,16.8195412372661),
                                                 (-1.26360571382314,26.9366491540346),
                                                 (-15.8471949722061,25.2976587627339),
@@ -78,7 +79,6 @@ class Scenario(BaseScenario):
                                     [(28.0,2.0),
                                                 (27.5,-11.0),
                                                 (17.5,-10.0)]]
-        '''
         world.forest_coordinations = [[(1.0,21.5),
                                                 (18.0,36.0),
                                                 (4.0,40.0)],
