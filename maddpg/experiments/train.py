@@ -107,15 +107,18 @@ def train(arglist):
         final_ep_ag_rewards = []  # agent rewards for training curve
         agent_info = [[[]]]  # placeholder for benchmarking info
         saver = tf.train.Saver()
-        # Initial observation: the just reset world
-        obs_n = env.reset()
+        obs_n = env.reset() # Initial observation: the just reset world
         episode_step = 0
         train_step = 0
-        t_start = time.time()
+        t_start = time.time() # Just to record the length of training time
 
         print('Starting iterations...')
         while True:
             # get action
+            ### TEST ###
+            for agent, obs in zip(trainers,obs_n):
+                print("agent:"+agent.name,"obs:"+str(obs))
+            ############
             action_n = [agent.action(obs) for agent, obs in zip(trainers,obs_n)]
             # environment step
             new_obs_n, rew_n, done_n, info_n = env.step(action_n)
