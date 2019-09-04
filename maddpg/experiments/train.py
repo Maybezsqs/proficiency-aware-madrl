@@ -116,7 +116,7 @@ def train(arglist):
         while True:
             # get action
             ### TEST ###
-            print("the shape of obs_n"+str(obs_n.shape))
+            print("the shape of obs_n",len(obs_n),len(obs_n[0]))
             for agent, obs in zip(trainers,obs_n):
                 print("agent:"+agent.name,"obs len:"+len(obs))
             ############
