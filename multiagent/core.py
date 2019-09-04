@@ -183,8 +183,8 @@ class World(object):
         else:
             noise = np.random.randn(*agent.action.c.shape) * agent.c_noise if agent.c_noise else 0.0
             agent.state.c = agent.action.c + noise
-        print("agent.action.c:"+str(agent.action.c))
-        print("agent.state.c:"+str(agent.state.c))
+        print(agent.name+".action.c:"+str(agent.action.c))
+        print(agent.name+".state.c:"+str(agent.state.c))
 
     # get collision forces for any contact between two entities
     def get_collision_force(self, entity_a, entity_b):
