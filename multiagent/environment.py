@@ -86,7 +86,7 @@ class MultiAgentEnv(gym.Env):
         # set action for each agent
         for i, agent in enumerate(self.agents):
             self._set_action(action_n[i], agent, self.action_space[i])
-        # advance world state
+        # advance world state(update the wolrd state because of the action taken by agents)
         self.world.step()
         # record observation for each agent
         for agent in self.agents:
@@ -96,8 +96,11 @@ class MultiAgentEnv(gym.Env):
 
             info_n['n'].append(self._get_info(agent))
 
-        # all agents get total reward in cooperative case
+        # all agents get total reward in cooperative case(should say, all good agents in one team)
+        # if yes, every one gets same reward(that is, the total of original reward)
+        # if not, then each individual is different(it is its original reward).
         reward = np.sum(reward_n)
+        print("Cooperative?"+str(self.shared_reward))
         if self.shared_reward:
             reward_n = [reward] * self.n
 
