@@ -10,10 +10,11 @@ class Scenario(BaseScenario):
         world.dim_c = 4
         #world.damping = 1
         num_good_agents = 2
-        num_adversaries = 2
+        num_adversaries = 1
         num_agents = num_adversaries + num_good_agents
         
         # For KSU
+        '''
         world.building_coordinations = [[(-0.126585027793863,16.8195412372661),
                                                 (-1.26360571382314,26.9366491540346),
                                                 (-15.8471949722061,25.2976587627339),
@@ -77,6 +78,7 @@ class Scenario(BaseScenario):
                                     [(28.0,2.0),
                                                 (27.5,-11.0),
                                                 (17.5,-10.0)]]
+        '''
         world.forest_coordinations = [[(1.0,21.5),
                                                 (18.0,36.0),
                                                 (4.0,40.0)],
@@ -84,9 +86,9 @@ class Scenario(BaseScenario):
                                                 (27.5,17.5),
                                                 (24.5,30.5)]]
         num_landmarks = len(world.building_coordinations)
-        num_food = 2
         num_forests = len(world.forest_coordinations)
         num_lawns = len(world.lawn_coordinations)
+        num_food = 2
         # add agents
         world.agents = [Agent() for i in range(num_agents)]
         for i, agent in enumerate(world.agents):
@@ -101,9 +103,7 @@ class Scenario(BaseScenario):
             agent.accel = 3.0 if agent.adversary else 4.0
             #agent.accel = 20.0 if agent.adversary else 25.0
             agent.max_speed = 1.0 if agent.adversary else 1.3
-        
         # add landmarks
-        # Change landmarks to buildings and lawns in KSU map
         world.landmarks = [Landmark() for i in range(num_landmarks)]
         for i, landmark in enumerate(world.landmarks):
             landmark.name = 'landmark %d' % i
@@ -139,7 +139,7 @@ class Scenario(BaseScenario):
         world.landmarks += world.food
         world.landmarks += world.forests
         world.landmarks += world.lawns
-        # TODO the line below:
+        # TODO the line below:???
         #world.landmarks += self.set_boundaries(world)  # world boundaries now penalized with negative reward
         # make initial conditions
         self.reset_world(world)
@@ -227,6 +227,7 @@ class Scenario(BaseScenario):
     def is_collision(self, agent1, agent2):
         delta_pos = agent1.state.p_pos - agent2.state.p_pos
         dist = np.sqrt(np.sum(np.square(delta_pos)))
+        # TODO dist_min may need modification due to real robots in gazebo
         dist_min = agent1.size + agent2.size
         return True if dist < dist_min else False
 
