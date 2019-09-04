@@ -116,8 +116,9 @@ def train(arglist):
         while True:
             # get action
             ### TEST ###
+            print("the shape of obs_n"+str(shape(obs_n)))
             for agent, obs in zip(trainers,obs_n):
-                print("agent:"+agent.name,"obs:"+str(obs))
+                print("agent:"+agent.name,"obs len:"+len(obs))
             ############
             action_n = [agent.action(obs) for agent, obs in zip(trainers,obs_n)]
             # environment step
