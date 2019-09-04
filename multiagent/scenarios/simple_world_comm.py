@@ -22,12 +22,15 @@ class Scenario(BaseScenario):
             agent.name = 'agent %d' % i
             agent.collide = True
             agent.leader = True if i == 0 else False
-            agent.silent = True if i > 0 else False
+            agent.silent = True if i > 0 else False # Only the leader can speak and others are all silent
+            
+            # Adversaries special
             agent.adversary = True if i < num_adversaries else False
             agent.size = 0.075 if agent.adversary else 0.045
             agent.accel = 3.0 if agent.adversary else 4.0
             #agent.accel = 20.0 if agent.adversary else 25.0
             agent.max_speed = 1.0 if agent.adversary else 1.3
+        
         # add landmarks
         # Change landmarks to buildings and lawns in KSU map
         world.landmarks = [Landmark() for i in range(num_landmarks)]
@@ -140,6 +143,7 @@ class Scenario(BaseScenario):
         # make initial conditions
         self.reset_world(world)
         return world
+
 
     def set_boundaries(self, world):
         boundary_list = []
@@ -258,6 +262,7 @@ class Scenario(BaseScenario):
                 rew += 0.1 * np.sqrt(np.sum(np.square(agent.state.p_pos - adv.state.p_pos)))
         if agent.collide:
             for a in adversaries:
+                # Penalty for being caught
                 if self.is_collision(a, agent):
                     rew -= 5
         def bound(x):
@@ -279,7 +284,7 @@ class Scenario(BaseScenario):
         return rew
 
     def adversary_reward(self, agent, world):
-        # Agents are rewarded based on minimum agent distance to each landmark
+        # Adversary agents are rewarded based on minimum agent distance to each good agent(Shape:true)
         rew = 0
         shape = True
         agents = self.good_agents(world)
@@ -297,6 +302,7 @@ class Scenario(BaseScenario):
 
 
     def observation2(self, agent, world):
+        print("in observation2")
         # get positions of all entities in this agent's reference frame
         entity_pos = []
         for entity in world.landmarks:
