@@ -104,7 +104,8 @@ def train(arglist):
         #if arglist.load_dir == "":
         #    arglist.load_dir = arglist.save_dir
         # Below are deleted because of the error exists in the OpenAI open sourced code train.py
-        if arglist.display or arglist.restore or arglist.benchmark:
+        #if arglist.display or arglist.restore or arglist.benchmark:
+        if (arglist.display and arglist.load_dir != "") or arglist.restore or arglist.benchmark:
             print('Loading previous state...')
             U.load_state(arglist.load_dir)
 
