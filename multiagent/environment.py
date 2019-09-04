@@ -32,6 +32,7 @@ class MultiAgentEnv(gym.Env):
         # if true, even the action is continuous, action will be performed discretely
         self.force_discrete_action = world.discrete_action if hasattr(world, 'discrete_action') else False
         # if true, every agent has the same reward
+        print("cooperative?"+str(hasattr(world, 'collaborative')))
         self.shared_reward = world.collaborative if hasattr(world, 'collaborative') else False
         self.time = 0
 
@@ -100,7 +101,6 @@ class MultiAgentEnv(gym.Env):
         # if yes, every one gets same reward(that is, the total of original reward)
         # if not, then each individual is different(it is its original reward).
         reward = np.sum(reward_n)
-        print("Cooperative?"+str(self.shared_reward))
         if self.shared_reward:
             reward_n = [reward] * self.n
 
