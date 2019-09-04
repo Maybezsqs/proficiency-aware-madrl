@@ -300,7 +300,7 @@ class Scenario(BaseScenario):
 
     # Observation settings below is very important!! Keep in mind!! Need more modifications!!
 
-
+    # This is not used
     def observation2(self, agent, world):
         print("in observation2")
         # get positions of all entities in this agent's reference frame
