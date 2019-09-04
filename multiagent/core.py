@@ -78,10 +78,6 @@ class Agent(Entity):
         # script behavior to execute
         self.action_callback = None
 
-        # for KSU map coordinations
-        self.building_coordinations = []
-        self.lawn_coordinations = []
-        self.forest_coordinations = []
 
 # multi-agent world
 class World(object):
@@ -103,6 +99,11 @@ class World(object):
         # contact response parameters
         self.contact_force = 1e+2
         self.contact_margin = 1e-3
+        
+        # for KSU map coordinations
+        self.building_coordinations = []
+        self.lawn_coordinations = []
+        self.forest_coordinations = []
 
     # return all entities in the world
     @property

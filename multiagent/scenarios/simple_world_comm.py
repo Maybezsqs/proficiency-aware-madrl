@@ -12,58 +12,7 @@ class Scenario(BaseScenario):
         num_good_agents = 2
         num_adversaries = 2
         num_agents = num_adversaries + num_good_agents
-        num_landmarks = 9
-        num_food = 2
-        num_forests = 2
-        num_lawns = 7 #8
-        # add agents
-        world.agents = [Agent() for i in range(num_agents)]
-        for i, agent in enumerate(world.agents):
-            agent.name = 'agent %d' % i
-            agent.collide = True
-            agent.leader = True if i == 0 else False
-            agent.silent = True if i > 0 else False # Only the leader can speak and others are all silent
-            
-            # Adversaries special
-            agent.adversary = True if i < num_adversaries else False
-            agent.size = 0.075 if agent.adversary else 0.045
-            agent.accel = 3.0 if agent.adversary else 4.0
-            #agent.accel = 20.0 if agent.adversary else 25.0
-            agent.max_speed = 1.0 if agent.adversary else 1.3
         
-        # add landmarks
-        # Change landmarks to buildings and lawns in KSU map
-        world.landmarks = [Landmark() for i in range(num_landmarks)]
-        for i, landmark in enumerate(world.landmarks):
-            landmark.name = 'landmark %d' % i
-            landmark.collide = True
-            landmark.movable = False
-            landmark.size = 0.2
-            landmark.boundary = False
-        world.food = [Landmark() for i in range(num_food)]
-        for i, landmark in enumerate(world.food):
-            landmark.name = 'food %d' % i
-            landmark.collide = False
-            landmark.movable = False
-            landmark.size = 0.03
-            landmark.boundary = False
-        world.forests = [Landmark() for i in range(num_forests)]
-        for i, landmark in enumerate(world.forests):
-            landmark.name = 'forest %d' % i
-            landmark.collide = False
-            landmark.movable = False
-            landmark.size = 0.1
-            landmark.boundary = False
-        world.lawns = [Landmark() for i in range(num_lawns)]
-        for i, landmark in enumerate(world.lawns):
-            landmark.name = 'lawn %d' % i
-            # TODO what does collide property mean for all entities?
-            landmark.collide = False
-            landmark.movable = False
-            landmark.size = 0.1
-            # TODO what does boundary property mean here?
-            landmark.boundary = False
-
         # For KSU
         world.building_coordinations = [[(-0.126585027793863,16.8195412372661),
                                                 (-1.26360571382314,26.9366491540346),
@@ -134,6 +83,58 @@ class Scenario(BaseScenario):
                                     [(7.0,17.5),
                                                 (27.5,17.5),
                                                 (24.5,30.5)]]
+        num_landmarks = len(world.building_coordinations)
+        num_food = 2
+        num_forests = len(world.forest_coordinations)
+        num_lawns = len(world.lawn_coordinations)
+        # add agents
+        world.agents = [Agent() for i in range(num_agents)]
+        for i, agent in enumerate(world.agents):
+            agent.name = 'agent %d' % i
+            agent.collide = True
+            agent.leader = True if i == 0 else False
+            agent.silent = True if i > 0 else False # Only the leader can speak and others are all silent
+            
+            # Adversaries special
+            agent.adversary = True if i < num_adversaries else False
+            agent.size = 0.075 if agent.adversary else 0.045
+            agent.accel = 3.0 if agent.adversary else 4.0
+            #agent.accel = 20.0 if agent.adversary else 25.0
+            agent.max_speed = 1.0 if agent.adversary else 1.3
+        
+        # add landmarks
+        # Change landmarks to buildings and lawns in KSU map
+        world.landmarks = [Landmark() for i in range(num_landmarks)]
+        for i, landmark in enumerate(world.landmarks):
+            landmark.name = 'landmark %d' % i
+            landmark.collide = True
+            landmark.movable = False
+            landmark.size = 0.2
+            landmark.boundary = False
+        world.food = [Landmark() for i in range(num_food)]
+        for i, landmark in enumerate(world.food):
+            landmark.name = 'food %d' % i
+            landmark.collide = False
+            landmark.movable = False
+            landmark.size = 0.03
+            landmark.boundary = False
+        world.forests = [Landmark() for i in range(num_forests)]
+        for i, landmark in enumerate(world.forests):
+            landmark.name = 'forest %d' % i
+            landmark.collide = False
+            landmark.movable = False
+            landmark.size = 0.1
+            landmark.boundary = False
+        world.lawns = [Landmark() for i in range(num_lawns)]
+        for i, landmark in enumerate(world.lawns):
+            landmark.name = 'lawn %d' % i
+            # TODO what does collide property mean for all entities?
+            landmark.collide = False
+            landmark.movable = False
+            landmark.size = 0.1
+            # TODO what does boundary property mean here?
+            landmark.boundary = False
+
         # Landmarks in world: landmarks + food + forests
         world.landmarks += world.food
         world.landmarks += world.forests
