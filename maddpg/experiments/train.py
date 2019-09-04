@@ -118,7 +118,7 @@ def train(arglist):
             # get action: for each agent i, select action ai = i (oi) + Nt w.r.t. the current policy and exploration
             # Through training
             action_n = [agent.action(obs) for agent, obs in zip(trainers,obs_n)] # obs_n: 4x62(first) then 4x56; 4 because of 4 agents(trainers) in total
-            print(action_n.shape)
+            print(len(action_n),len(action_n[0]))
             # environment step: Execute actions a = (a1; : : : ; aN) and observe reward r and new state x0
             new_obs_n, rew_n, done_n, info_n = env.step(action_n)
             episode_step += 1
