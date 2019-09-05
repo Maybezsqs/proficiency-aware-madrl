@@ -11,50 +11,7 @@ class Scenario(BaseScenario):
         num_good_agents = 1
         num_adversaries = 3
         num_agents = num_adversaries + num_good_agents
-        world.lawn_coordinations = [[(-19.0,-14.0),
-                                        (2.0,-14.0),
-                                        (-4.5,-24.0),
-                                        (-11.0,-24.0)],
-                            [(-19.5,-20.0),
-                                        (-14.5,-25.5),
-                                        (-14.5,-30.5),
-                                        (-19.5,-37.0)],
-                            [(-1.0,-24.5),
-                                        (4.5,-18.5),
-                                        (4.5,-36.5),
-                                        (-1.0,-30.5)],
-                            [(-11.0,-32.5),
-                                        (-4.5,-32.5),
-                                        (2.0,-42.0),
-                                        (-19.0,-42.0)],
-                            [(-11.5,-1.0),
-                                        (-8.0,-1.0),
-                                        (-8.0,-4.5),
-                                        (-11.5,-4.5)],
-                            [(14.5,11.0),
-                                        (27.0,8.0),
-                                        (15.5,-4.5)],
-                            [(28.0,2.0),
-                                        (27.5,-11.0),
-                                        (17.5,-10.0)]]
-        world.forest_coordinations = [[(1.0,21.5),
-                                        (18.0,36.0),
-                                        (4.0,40.0)],
-                            [(7.0,17.5),
-                                        (27.5,17.5),
-                                        (24.5,30.5)]]
-        num_lawns = len(world.lawn_coordinations)
-        world.lawns = [Landmark() for i in range(num_lawns)]
-        for i, landmark in enumerate(world.lawns):
-            landmark.name = 'lawn %d' % i
-            # TODO what does collide property mean for all entities?
-            landmark.collide = False
-            landmark.movable = False
-            landmark.size = 0.1
-            # TODO what does boundary property mean here?
-            landmark.boundary = False
-
-        num_landmarks = len(world.building_coordinations) #2
+        num_landmarks = 2
         # add agents
         world.agents = [Agent() for i in range(num_agents)]
         for i, agent in enumerate(world.agents):
@@ -75,9 +32,6 @@ class Scenario(BaseScenario):
             landmark.size = 0.2
             landmark.boundary = False
         # make initial conditions
-
-        world.landmarks += world.lawns
-
         self.reset_world(world)
         return world
 
@@ -98,8 +52,6 @@ class Scenario(BaseScenario):
             if not landmark.boundary:
                 landmark.state.p_pos = np.random.uniform(-0.9, +0.9, world.dim_p)
                 landmark.state.p_vel = np.zeros(world.dim_p)
-        for i, landmark in enumerate(world.lawns):
-            landmark.color = np.array([0.6, 0.9, 0.6])
 
 
     def benchmark_data(self, agent, world):

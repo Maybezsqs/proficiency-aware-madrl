@@ -40,6 +40,7 @@ class MultiAgentEnv(gym.Env):
         # configure spaces
         self.action_space = []
         self.observation_space = []
+        i = 0
         for agent in self.agents:
             total_action_space = []
             # physical action space
@@ -72,7 +73,7 @@ class MultiAgentEnv(gym.Env):
             agent.action.c = np.zeros(self.world.dim_c)
 
             print(agent.name)
-            print("action",self.action_space[-1],self.observation_space[-1])
+            print("action",self.action_space[i],self.observation_space[i])
 
 
         # rendering
