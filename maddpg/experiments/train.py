@@ -180,7 +180,7 @@ def train(arglist):
 
             # save model, display training output
             if terminal and (len(episode_rewards) % arglist.save_rate == 0):
-                U.save_state(arglist.save_dir + arglist.exp_name + '_' + str(int(len(episode_rewards) / arglist.save_rate)) + '/', saver=saver)
+                U.save_state(arglist.save_dir + arglist.exp_name, saver=saver, global_step=train_step)
                 # print statement depends on whether or not there are adversaries
                 if num_adversaries == 0:
                     print("steps: {}, episodes: {}, mean episode reward: {}, time: {}".format(
