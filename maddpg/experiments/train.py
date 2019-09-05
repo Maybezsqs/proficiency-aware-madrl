@@ -109,7 +109,7 @@ def train(arglist):
             print('Loading previous state from %s...' % arglist.load_dir)
             U.load_state(arglist.load_dir)
         else:
-            print('Will saving model to %s...' % arglist.save_dir)
+            print('Saving model to %s...' % arglist.save_dir)
 
         episode_rewards = [0.0]  # sum of rewards for all agents
         agent_rewards = [[0.0] for _ in range(env.n)]  # individual policy agent reward
@@ -128,7 +128,7 @@ def train(arglist):
             # get action: for each agent i, select action ai = i (oi) + Nt w.r.t. the current policy and exploration
             # Through training(maddpg)
             action_n = [agent.action(obs) for agent, obs in zip(trainers,obs_n)] # obs_n: 4x62(first) then 4x56; 4 because of 4 agents(trainers) in total
-            # action_n: 4x9
+            # action_n: num_agents x 9
             # environment step: Execute actions a = (a1; : : : ; aN) and observe reward r and new state x0
             new_obs_n, rew_n, done_n, info_n = env.step(action_n)
             episode_step += 1

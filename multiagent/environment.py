@@ -31,7 +31,7 @@ class MultiAgentEnv(gym.Env):
         # if true, action is a number 0...N, otherwise action is a one-hot N-dimensional vector
         self.discrete_action_input = False
         # if true, even the action is continuous, action will be performed discretely
-        self.force_discrete_action = world.discrete_action if hasattr(world, 'discrete_action') else False
+        self.force_discrete_action = world.discrete_action if hasattr(world, 'discrete_action') else False # False
         # if true, every agent has the same reward
         # TODO Currently, hasattr(world, 'collaborative') is False
         self.shared_reward = world.collaborative if hasattr(world, 'collaborative') else False
@@ -57,8 +57,7 @@ class MultiAgentEnv(gym.Env):
             if not agent.silent: # If it is a leader, it will communicate with others
                 total_action_space.append(c_action_space)
             # total action space
-            print(agent.name,len(total_action_space))
-            if len(total_action_space) > 1: # Has both u_action_space and c_action_space
+            if len(total_action_space) > 1: # The leader has both u_action_space and c_action_space(=2), and others only have 1
                 # all action spaces are discrete, so simplify to MultiDiscrete action space
                 if all([isinstance(act_space, spaces.Discrete) for act_space in total_action_space]):
                     act_space = MultiDiscrete([[0, act_space.n - 1] for act_space in total_action_space])
@@ -66,14 +65,14 @@ class MultiAgentEnv(gym.Env):
                     act_space = spaces.Tuple(total_action_space)
                 self.action_space.append(act_space)
             else:
-                self.action_space.append(total_action_space[0])
+                self.action_space.append(total_action_space[0]) # Only have one whatever
             # observation space
             obs_dim = len(observation_callback(agent, self.world))
             self.observation_space.append(spaces.Box(low=-np.inf, high=+np.inf, shape=(obs_dim,), dtype=np.float32))
             agent.action.c = np.zeros(self.world.dim_c)
 
         # rendering
-        self.shared_viewer = shared_viewer
+        self.shared_viewer = shared_viewer # True
         if self.shared_viewer:
             self.viewers = [None]
         else:
@@ -99,7 +98,7 @@ class MultiAgentEnv(gym.Env):
 
             info_n['n'].append(self._get_info(agent))
 
-        # all agents get total reward in cooperative case(should say, all good agents in one team)
+        # all agents get total reward in cooperative case(should be, all good agents in one team)
         # if yes, every one gets same reward(that is, the total of original reward)
         # if not, then each individual is different(it is its original reward).
         reward = np.sum(reward_n)
@@ -148,6 +147,9 @@ class MultiAgentEnv(gym.Env):
 
     # set env action for a particular agent
     def _set_action(self, action, agent, action_space, time=None):
+        print(agent.name)
+        print("action",action)
+        print(action_space)
         agent.action.u = np.zeros(self.world.dim_p) # Action.u: physical action x and y
         agent.action.c = np.zeros(self.world.dim_c) # Action.c: communication action, for simple_world_comm it is 4, weird...
         # process action
@@ -172,17 +174,17 @@ class MultiAgentEnv(gym.Env):
                 if action[0] == 3: agent.action.u[1] = -1.0
                 if action[0] == 4: agent.action.u[1] = +1.0
             else:
-                if self.force_discrete_action:
+                if self.force_discrete_action: # False
                     d = np.argmax(action[0])
                     action[0][:] = 0.0
                     action[0][d] = 1.0
-                if self.discrete_action_space:
+                if self.discrete_action_space: # True
                     agent.action.u[0] += action[0][1] - action[0][2]
                     agent.action.u[1] += action[0][3] - action[0][4]
                 else:
                     agent.action.u = action[0]
             sensitivity = 5.0
-            if agent.accel is not None:
+            if agent.accel is not None: # True
                 sensitivity = agent.accel
             agent.action.u *= sensitivity
             action = action[1:]
