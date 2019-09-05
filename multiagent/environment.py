@@ -218,7 +218,6 @@ class MultiAgentEnv(gym.Env):
                     message += (other.name + ' to ' + agent.name + ': ' + word + '   ')
             #print(message + '\n')
 
-        print("viewers length=",len(self.viewers))
         for i in range(len(self.viewers)):
             # create viewers (if necessary)
             if self.viewers[i] is None:
@@ -284,11 +283,11 @@ class MultiAgentEnv(gym.Env):
             from multiagent import rendering
             # update bounds to center around agent
             cam_range = 1
-            if self.shared_viewer:
+            if self.shared_viewer: # True
                 pos = np.zeros(self.world.dim_p)
             else:
                 pos = self.agents[i].state.p_pos
-            self.viewers[i].set_bounds(pos[0]-cam_range,pos[0]+cam_range,pos[1]-cam_range,pos[1]+cam_range)
+            self.viewers[i].set_bounds(pos[0]-cam_range,pos[0]+cam_range,pos[1]-cam_range,pos[1]+cam_range) # Is this 100% or other meanings?
             # update geometry positions every episode
             # don't want this in KSU map to change building, forest and food every time
             # So changed entities to agents

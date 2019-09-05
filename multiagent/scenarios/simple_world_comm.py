@@ -16,6 +16,7 @@ class Scenario(BaseScenario):
         num_agents = num_adversaries + num_good_agents
         
         # For KSU
+        '''
         world.building_coordinations = [[(-0.126585027793863,16.8195412372661),
                                                 (-1.26360571382314,26.9366491540346),
                                                 (-15.8471949722061,25.2976587627339),
@@ -52,6 +53,7 @@ class Scenario(BaseScenario):
                                                 (25.002585828147,-16.0262640084564),
                                                 (25.0170808289822,-11.0836552628797),
                                                 (19.588814171853,-11.0677359915436)]]
+        '''
         # TODO currently without the lawn of circle shape
         world.lawn_coordinations = [[(-19.0,-14.0),
                                                 (2.0,-14.0),
