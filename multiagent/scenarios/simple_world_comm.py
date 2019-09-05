@@ -11,8 +11,8 @@ class Scenario(BaseScenario):
         # State: set and changed by action
         world.dim_c = 4 # default 0 
         #world.damping = 1
-        num_good_agents = 3
-        num_adversaries = 1
+        num_good_agents = 1
+        num_adversaries = 3
         num_agents = num_adversaries + num_good_agents
         
         # For KSU
