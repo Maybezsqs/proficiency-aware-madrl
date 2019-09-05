@@ -43,21 +43,22 @@ class MultiAgentEnv(gym.Env):
         for agent in self.agents:
             total_action_space = []
             # physical action space
-            if self.discrete_action_space:
+            if self.discrete_action_space: # True
                 u_action_space = spaces.Discrete(world.dim_p * 2 + 1)
             else:
                 u_action_space = spaces.Box(low=-agent.u_range, high=+agent.u_range, shape=(world.dim_p,), dtype=np.float32)
             if agent.movable:
                 total_action_space.append(u_action_space)
             # communication action space
-            if self.discrete_action_space:
+            if self.discrete_action_space: # True
                 c_action_space = spaces.Discrete(world.dim_c)
             else:
                 c_action_space = spaces.Box(low=0.0, high=1.0, shape=(world.dim_c,), dtype=np.float32)
-            if not agent.silent:
+            if not agent.silent: # If it is a leader, it will communicate with others
                 total_action_space.append(c_action_space)
             # total action space
-            if len(total_action_space) > 1:
+            print(agent.name,len(total_action_space))
+            if len(total_action_space) > 1: # Has both u_action_space and c_action_space
                 # all action spaces are discrete, so simplify to MultiDiscrete action space
                 if all([isinstance(act_space, spaces.Discrete) for act_space in total_action_space]):
                     act_space = MultiDiscrete([[0, act_space.n - 1] for act_space in total_action_space])
@@ -89,7 +90,7 @@ class MultiAgentEnv(gym.Env):
         for i, agent in enumerate(self.agents):
             self._set_action(action_n[i], agent, self.action_space[i])
         # advance world state(update the wolrd state because of the action taken by agents)
-        self.world.step()
+        self.world.step() # in core.py class World
         # record observation for each agent
         for agent in self.agents:
             obs_n.append(self._get_obs(agent))
@@ -147,8 +148,8 @@ class MultiAgentEnv(gym.Env):
 
     # set env action for a particular agent
     def _set_action(self, action, agent, action_space, time=None):
-        agent.action.u = np.zeros(self.world.dim_p)
-        agent.action.c = np.zeros(self.world.dim_c)
+        agent.action.u = np.zeros(self.world.dim_p) # Action.u: physical action x and y
+        agent.action.c = np.zeros(self.world.dim_c) # Action.c: communication action, for simple_world_comm it is 4, weird...
         # process action
         if isinstance(action_space, MultiDiscrete):
             act = []
@@ -163,8 +164,7 @@ class MultiAgentEnv(gym.Env):
 
         if agent.movable:
             # physical action
-            # Currently default false
-            if self.discrete_action_input:
+            if self.discrete_action_input: # False
                 agent.action.u = np.zeros(self.world.dim_p)
                 # process discrete action
                 if action[0] == 1: agent.action.u[0] = -1.0

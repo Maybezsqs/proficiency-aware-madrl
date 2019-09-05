@@ -9,7 +9,7 @@ class Scenario(BaseScenario):
         # set any world properties first
         # Set communication state dimension
         # State: set and changed by action
-        world.dim_c = 4
+        world.dim_c = 4 # default 0 
         #world.damping = 1
         num_good_agents = 3
         num_adversaries = 1
@@ -95,7 +95,7 @@ class Scenario(BaseScenario):
             agent.name = 'agent %d' % i
             agent.collide = True
             agent.leader = True if i == 0 else False
-            agent.silent = True if i > 0 else False # Only the leader can speak and others are all silent
+            agent.silent = True if i > 0 else False # Only the leader(agent 0) can speak and others are all silent
             
             # Adversaries special
             agent.adversary = True if i < num_adversaries else False # This is very important, first adversaries, then good agents

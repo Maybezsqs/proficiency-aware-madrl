@@ -106,8 +106,10 @@ def train(arglist):
         # Below are deleted because of the error exists in the OpenAI open sourced code train.py
         #if arglist.display or arglist.restore or arglist.benchmark:
         if (arglist.display and arglist.load_dir != "") or arglist.restore or arglist.benchmark:
-            print('Loading previous state...')
+            print('Loading previous state from %s...' % arglist.load_dir)
             U.load_state(arglist.load_dir)
+        else:
+            print('Will saving model to %s...' % arglist.save_dir)
 
         episode_rewards = [0.0]  # sum of rewards for all agents
         agent_rewards = [[0.0] for _ in range(env.n)]  # individual policy agent reward

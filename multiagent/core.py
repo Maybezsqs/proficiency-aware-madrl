@@ -91,7 +91,7 @@ class World(object):
         # communication channel dimensionality
         self.dim_c = 0 # ?
         # position dimensionality
-        self.dim_p = 2 # xy
+        self.dim_p = 2 # x and y
         # color dimensionality
         self.dim_color = 3 # rgb
         # simulation timestep
@@ -185,8 +185,6 @@ class World(object):
         else:
             noise = np.random.randn(*agent.action.c.shape) * agent.c_noise if agent.c_noise else 0.0
             agent.state.c = agent.action.c + noise
-        #print(agent.name+".action.c:"+str(agent.action.c))
-        #print(agent.name+".state.c:"+str(agent.state.c))
 
     # get collision forces for any contact between two entities
     def get_collision_force(self, entity_a, entity_b):
