@@ -125,7 +125,6 @@ def train(arglist):
 
         print('Starting iterations...')
         while True:
-            print("episode_step " + str(episode_step))
             # get action: for each agent i, select action ai = i (oi) + Nt w.r.t. the current policy and exploration
             # Through training(maddpg)
             action_n = [agent.action(obs) for agent, obs in zip(trainers,obs_n)] # obs_n: 4x62(first) then 4x56; 4 because of 4 agents(trainers) in total
