@@ -71,6 +71,10 @@ class MultiAgentEnv(gym.Env):
             self.observation_space.append(spaces.Box(low=-np.inf, high=+np.inf, shape=(obs_dim,), dtype=np.float32))
             agent.action.c = np.zeros(self.world.dim_c)
 
+            print(agent.name)
+            print("action",self.action_space[-1],self.observation_space[-1])
+
+
         # rendering
         self.shared_viewer = shared_viewer # True
         if self.shared_viewer:
@@ -147,9 +151,6 @@ class MultiAgentEnv(gym.Env):
 
     # set env action for a particular agent
     def _set_action(self, action, agent, action_space, time=None):
-        print(agent.name)
-        print("action",action)
-        print(action_space)
         agent.action.u = np.zeros(self.world.dim_p) # Action.u: physical action x and y
         agent.action.c = np.zeros(self.world.dim_c) # Action.c: communication action, for simple_world_comm it is 4, weird...
         # process action
