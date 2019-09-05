@@ -105,7 +105,7 @@ class Scenario(BaseScenario):
             agent.max_speed = 1.0 if agent.adversary else 1.3
         # add landmarks
         world.landmarks = [Landmark() for i in range(num_landmarks)]
-        for i, landmark in enumerate(world.landmarks):
+        for i, landmark in enumerate(world.landmarks): # buildings
             landmark.name = 'landmark %d' % i
             landmark.collide = True
             landmark.movable = False

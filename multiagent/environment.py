@@ -72,10 +72,6 @@ class MultiAgentEnv(gym.Env):
             self.observation_space.append(spaces.Box(low=-np.inf, high=+np.inf, shape=(obs_dim,), dtype=np.float32))
             agent.action.c = np.zeros(self.world.dim_c)
 
-            print(agent.name)
-            print("action",self.action_space[i],self.observation_space[i])
-
-
         # rendering
         self.shared_viewer = shared_viewer # True
         if self.shared_viewer:
@@ -222,6 +218,7 @@ class MultiAgentEnv(gym.Env):
                     message += (other.name + ' to ' + agent.name + ': ' + word + '   ')
             #print(message + '\n')
 
+        print("viewers length=",len(self.viewers))
         for i in range(len(self.viewers)):
             # create viewers (if necessary)
             if self.viewers[i] is None:
