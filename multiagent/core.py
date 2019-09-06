@@ -132,9 +132,8 @@ class World(object):
         p_force = [None] * len(self.entities)
         # apply agent physical controls
         p_force = self.apply_action_force(p_force)
-        print("p_force:",p_force)
         # apply environment forces
-        #p_force = self.apply_environment_force(p_force)
+        p_force = self.apply_environment_force(p_force)
         # integrate physical state
         self.integrate_state(p_force)
         # update agent state
@@ -157,6 +156,7 @@ class World(object):
             for b,entity_b in enumerate(self.entities):
                 if(b <= a): continue # order doesm't matter, so only half is considered
                 [f_a, f_b] = self.get_collision_force(entity_a, entity_b)
+                print('f_a',f_a,'\tf_b',f_b)
                 if(f_a is not None):
                     if(p_force[a] is None): p_force[a] = 0.0
                     p_force[a] = f_a + p_force[a] 
