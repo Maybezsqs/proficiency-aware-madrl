@@ -147,6 +147,7 @@ class World(object):
             if agent.movable:
                 noise = np.random.randn(*agent.action.u.shape) * agent.u_noise if agent.u_noise else 0.0
                 p_force[i] = agent.action.u + noise
+        print('<Action force>''f_a',f_a,'\tf_b',f_b)
         return p_force
 
     # gather physical forces acting on entities
@@ -156,7 +157,7 @@ class World(object):
             for b,entity_b in enumerate(self.entities):
                 if(b <= a): continue # order doesm't matter, so only half is considered
                 [f_a, f_b] = self.get_collision_force(entity_a, entity_b)
-                print('f_a',f_a,'\tf_b',f_b)
+                print('<Environemnt force>''f_a',f_a,'\tf_b',f_b)
                 if(f_a is not None):
                     if(p_force[a] is None): p_force[a] = 0.0
                     p_force[a] = f_a + p_force[a] 
@@ -169,6 +170,7 @@ class World(object):
     def integrate_state(self, p_force):
         for i,entity in enumerate(self.entities):
             if not entity.movable: continue
+            # Only for agents
             entity.state.p_vel = entity.state.p_vel * (1 - self.damping)
             if (p_force[i] is not None):
                 entity.state.p_vel += (p_force[i] / entity.mass) * self.dt
@@ -178,6 +180,7 @@ class World(object):
                     entity.state.p_vel = entity.state.p_vel / np.sqrt(np.square(entity.state.p_vel[0]) +
                                                                   np.square(entity.state.p_vel[1])) * entity.max_speed
             entity.state.p_pos += entity.state.p_vel * self.dt
+            print('Integrated state',entity.name,entity.state.p_pos)
 
     def update_agent_state(self, agent):
         # set communication state (directly for now)
