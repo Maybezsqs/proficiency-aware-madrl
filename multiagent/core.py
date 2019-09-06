@@ -97,7 +97,7 @@ class World(object):
         # simulation timestep
         self.dt = 0.1
         # physical damping
-        self.damping = 0.25
+        self.damping = 0.05 # 0.25
         # contact response parameters
         self.contact_force = 1e+2
         self.contact_margin = 1e-3
@@ -177,7 +177,8 @@ class World(object):
                 if speed > entity.max_speed:
                     entity.state.p_vel = entity.state.p_vel / np.sqrt(np.square(entity.state.p_vel[0]) +
                                                                   np.square(entity.state.p_vel[1])) * entity.max_speed
-                print(entity.name,'entity.state.p_vel',entity.state.p_vel)
+            if(entity.name=='agent 0'):
+                print('state.p_vel',entity.state.p_vel)
             entity.state.p_pos += entity.state.p_vel * self.dt
 
     def update_agent_state(self, agent):
