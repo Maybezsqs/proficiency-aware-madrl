@@ -101,7 +101,7 @@ class Scenario(BaseScenario):
             
             # Adversaries special
             agent.adversary = True if i < num_adversaries else False # This is very important, first adversaries, then good agents
-            agent.size = 0.075 if agent.adversary else 0.045
+            agent.size = 0.045 if agent.adversary else 0.025
             agent.accel = 3.0 if agent.adversary else 4.0
             #agent.accel = 20.0 if agent.adversary else 25.0
             agent.max_speed = 1.0 if agent.adversary else 1.3
@@ -118,7 +118,7 @@ class Scenario(BaseScenario):
             landmark.name = 'food %d' % i
             landmark.collide = False
             landmark.movable = False
-            landmark.size = 0.03
+            landmark.size = 0.02
             landmark.boundary = False
         world.forests = [Landmark() for i in range(num_forests)]
         for i, landmark in enumerate(world.forests):
