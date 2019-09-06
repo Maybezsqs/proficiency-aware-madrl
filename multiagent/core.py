@@ -147,7 +147,7 @@ class World(object):
             if agent.movable:
                 noise = np.random.randn(*agent.action.u.shape) * agent.u_noise if agent.u_noise else 0.0
                 p_force[i] = agent.action.u + noise
-        print('<Action force>''f_a',f_a,'\tf_b',f_b)
+        print('<Action force>''p_force',p_force)
         return p_force
 
     # gather physical forces acting on entities
