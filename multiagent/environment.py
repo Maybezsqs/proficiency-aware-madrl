@@ -90,7 +90,7 @@ class MultiAgentEnv(gym.Env):
         for i, agent in enumerate(self.agents):
             self._set_action(action_n[i], agent, self.action_space[i])
         # advance world state(update the wolrd state because of the action taken by agents)
-        self.world.step() # in core.py class World
+        self.world.step() # in core.py class World, applying the force, speed and position
         # record observation for each agent
         for agent in self.agents:
             obs_n.append(self._get_obs(agent))
@@ -292,7 +292,8 @@ class MultiAgentEnv(gym.Env):
             # don't want this in KSU map to change building, forest and food every time
             # So changed entities to agents
             for e, entity in enumerate(self.world.agents):
-                self.render_geoms_xform[e].set_translation(*entity.state.p_pos)
+                print(entity.name,entity.state.p_pos)
+                self.render_geoms_xform[e].set_translation(*entity.state.p_pos) # Single * means the para sent is a tuple
             # render to display or array
             results.append(self.viewers[i].render(return_rgb_array = mode=='rgb_array'))
 
