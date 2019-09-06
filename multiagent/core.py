@@ -147,7 +147,6 @@ class World(object):
             if agent.movable:
                 noise = np.random.randn(*agent.action.u.shape) * agent.u_noise if agent.u_noise else 0.0
                 p_force[i] = agent.action.u + noise
-        print('<Action force>','p_force',p_force)
         return p_force
 
     # gather physical forces acting on entities
@@ -173,14 +172,13 @@ class World(object):
             entity.state.p_vel = entity.state.p_vel * (1 - self.damping)
             if (p_force[i] is not None):
                 entity.state.p_vel += (p_force[i] / entity.mass) * self.dt
+                print(entity.name,'entity.state.p_vel',entity.state.p_vel)
             if entity.max_speed is not None:
                 speed = np.sqrt(np.square(entity.state.p_vel[0]) + np.square(entity.state.p_vel[1]))
                 if speed > entity.max_speed:
                     entity.state.p_vel = entity.state.p_vel / np.sqrt(np.square(entity.state.p_vel[0]) +
                                                                   np.square(entity.state.p_vel[1])) * entity.max_speed
             entity.state.p_pos += entity.state.p_vel * self.dt
-            if(entity.name=='agent 1'):
-                print('Integrated state',entity.state.p_vel,entity.state.p_pos)
 
     def update_agent_state(self, agent):
         # set communication state (directly for now)
