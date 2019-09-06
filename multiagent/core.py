@@ -111,7 +111,7 @@ class World(object):
     @property
     def entities(self):
         # the order determines the layer order(upfront or back)
-        return self.landmarks + self.agents
+        return self.landmarks + self.agents # first landmarks then agents
 
     # return all agents controllable by external policies
     @property
@@ -154,7 +154,7 @@ class World(object):
         # simple (but inefficient) collision response
         for a,entity_a in enumerate(self.entities):
             for b,entity_b in enumerate(self.entities):
-                if(b <= a): continue # order doesm't matter, so only half is considered
+                if(b <= a): continue
                 [f_a, f_b] = self.get_collision_force(entity_a, entity_b)
                 if(f_a is not None):
                     if(p_force[a] is None): p_force[a] = 0.0
@@ -167,7 +167,7 @@ class World(object):
         return p_force
 
     # integrate physical state
-    def integrate_state(self, p_force): # It is this function that actually changes the state
+    def integrate_state(self, p_force): # It is this function that actually changes the state(the position)
         for i,entity in enumerate(self.entities):
             if not entity.movable: continue
             # Only for agents
@@ -189,17 +189,42 @@ class World(object):
             noise = np.random.randn(*agent.action.c.shape) * agent.c_noise if agent.c_noise else 0.0
             agent.state.c = agent.action.c + noise
 
-    # get collision forces for any contact between two entities
+    # get collision forces for any contact between two entities (a < b)
     def get_collision_force(self, entity_a, entity_b):
         if (not entity_a.collide) or (not entity_b.collide):
             return [None, None] # not a collider
         if (entity_a is entity_b):
             return [None, None] # don't collide against itself
-        # compute actual distance between entities
+        if 'agent' in entity_a.name:
+            # compute actual distance between agents(entities)
+            delta_pos = entity_a.state.p_pos - entity_b.state.p_pos
+            dist = np.sqrt(np.sum(np.square(delta_pos)))
+            # minimum allowable distance
+            dist_min = entity_a.size + entity_b.size
+        elif 'agent' in entity_b.name:
+            # a is landscape but b is agent
+            import multiagent.scenarios.ksu_map as ksu
+            import math
+            if 'landmark' in entity_a.name:
+                landmark_id = entity_a.name[-1]
+                coor = ksu.building_coordinations[int(landmark_id)]
+                center_x, center_y = 0.0, 0.0
+                for i in range(len(coor)):
+                    center_x += coor[i][0]
+                    center_y += coor[i][1]
+                p_pos = (center_x, center_y)
+                # compute actual distance between the agent and the entity
+                delta_pos = p_pos - entity_b.state.p_pos
+                dist = np.sqrt(np.sum(np.square(delta_pos)))
+                # minimum allowable distance (safest!!!)
+                size = max(math.fabs(coor[0][0] - coor[1][0]), math.fabs(coor[0][1] - coor[1][1]), math.fabs(coor[1][0] - coor[2][0]), math.fabs(coor[1][1] - coor[2][1])) / 2
+                dist_min = size + entity_b.size
+        # compute actual distance between agents(entities)
         delta_pos = entity_a.state.p_pos - entity_b.state.p_pos
         dist = np.sqrt(np.sum(np.square(delta_pos)))
         # minimum allowable distance
         dist_min = entity_a.size + entity_b.size
+
         # softmax penetration
         k = self.contact_margin
         penetration = np.logaddexp(0, -(dist - dist_min)/k)*k

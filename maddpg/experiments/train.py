@@ -31,7 +31,7 @@ def parse_args():
     parser.add_argument("--batch-size", type=int, default=1024, help="number of episodes to optimize at the same time")
     parser.add_argument("--num-units", type=int, default=64, help="number of units in the mlp")
     # Checkpointing
-    parser.add_argument("--exp-name", type=str, default="swc" + '-' + t_now_format, help="name of the experiment")
+    parser.add_argument("--exp-name", type=str, default="swc", help="name of the experiment")
     parser.add_argument("--save-dir", type=str, default="/tmp/policy/", help="directory in which training state and model should be saved")
     parser.add_argument("--save-rate", type=int, default=5000, help="save model once every time this many episodes are completed")
     parser.add_argument("--load-dir", type=str, default="", help="directory in which training state and model are loaded")
@@ -160,7 +160,7 @@ def train(arglist):
                 for i, info in enumerate(info_n):
                     agent_info[-1][i].append(info_n['n'])
                 if train_step > arglist.benchmark_iters and (done or terminal):
-                    file_name = arglist.benchmark_dir + arglist.exp_name + '.pkl'
+                    file_name = arglist.benchmark_dir + arglist.exp_name + '-' + t_now_format + '.pkl'
                     print('Finished benchmarking, now saving...')
                     with open(file_name, 'wb') as fp:
                         pickle.dump(agent_info[:-1], fp)
@@ -182,7 +182,7 @@ def train(arglist):
 
             # save model, display training output
             if terminal and (len(episode_rewards) % arglist.save_rate == 0):
-                U.save_state(arglist.save_dir + arglist.exp_name, saver=saver, global_step=train_step)
+                U.save_state(arglist.save_dir + arglist.exp_name + '-' + t_now_format, saver=saver, global_step=train_step)
                 # print statement depends on whether or not there are adversaries
                 if num_adversaries == 0:
                     print("steps: {}, episodes: {}, mean episode reward: {}, time: {}".format(
@@ -199,10 +199,10 @@ def train(arglist):
 
             # saves final episode reward for plotting training curve later
             if len(episode_rewards) > arglist.num_episodes:
-                rew_file_name = arglist.plots_dir + arglist.exp_name + '_rewards.pkl'
+                rew_file_name = arglist.plots_dir + arglist.exp_name + '-' + t_now_format + '_rewards.pkl'
                 with open(rew_file_name, 'wb') as fp:
                     pickle.dump(final_ep_rewards, fp)
-                agrew_file_name = arglist.plots_dir + arglist.exp_name + '_agrewards.pkl'
+                agrew_file_name = arglist.plots_dir + arglist.exp_name + '-' + t_now_format + '_agrewards.pkl'
                 with open(agrew_file_name, 'wb') as fp:
                     pickle.dump(final_ep_ag_rewards, fp)
                 print('...Finished total of {} episodes.'.format(len(episode_rewards)))
