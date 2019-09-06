@@ -133,7 +133,7 @@ class World(object):
         # apply agent physical controls
         p_force = self.apply_action_force(p_force)
         # apply environment forces
-        p_force = self.apply_environment_force(p_force)
+        #p_force = self.apply_environment_force(p_force)
         # integrate physical state
         self.integrate_state(p_force)
         # update agent state
@@ -180,7 +180,7 @@ class World(object):
 
     def update_agent_state(self, agent):
         # set communication state (directly for now)
-        if agent.silent:
+        if agent.silent: # Then say nothing
             agent.state.c = np.zeros(self.dim_c)
         else:
             noise = np.random.randn(*agent.action.c.shape) * agent.c_noise if agent.c_noise else 0.0
