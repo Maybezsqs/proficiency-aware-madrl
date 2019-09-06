@@ -157,7 +157,7 @@ class World(object):
             for b,entity_b in enumerate(self.entities):
                 if(b <= a): continue # order doesm't matter, so only half is considered
                 [f_a, f_b] = self.get_collision_force(entity_a, entity_b)
-                print('<Environemnt force>''f_a',f_a,'\tf_b',f_b)
+                #print('<Environemnt force>''f_a',f_a,'\tf_b',f_b)
                 if(f_a is not None):
                     if(p_force[a] is None): p_force[a] = 0.0
                     p_force[a] = f_a + p_force[a] 
