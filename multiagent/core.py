@@ -132,6 +132,7 @@ class World(object):
         p_force = [None] * len(self.entities)
         # apply agent physical controls
         p_force = self.apply_action_force(p_force)
+        print("p_force:",p_force)
         # apply environment forces
         #p_force = self.apply_environment_force(p_force)
         # integrate physical state
