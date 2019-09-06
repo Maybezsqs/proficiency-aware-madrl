@@ -143,7 +143,7 @@ class World(object):
     # gather agent action forces
     def apply_action_force(self, p_force):
         # set applied forces
-        for i,agent in enumerate(self.agents):
+        for i,agent in enumerate(self.entities):
             if agent.movable:
                 noise = np.random.randn(*agent.action.u.shape) * agent.u_noise if agent.u_noise else 0.0
                 p_force[i] = agent.action.u + noise
@@ -158,14 +158,16 @@ class World(object):
                 [f_a, f_b] = self.get_collision_force(entity_a, entity_b)
                 if(f_a is not None):
                     if(p_force[a] is None): p_force[a] = 0.0
-                    p_force[a] = f_a + p_force[a] 
+                    p_force[a] = f_a + p_force[a]
+                    #print(a,p_force[a])
                 if(f_b is not None):
                     if(p_force[b] is None): p_force[b] = 0.0
-                    p_force[b] = f_b + p_force[b]        
+                    p_force[b] = f_b + p_force[b]
+                    #print(b,p_force[b])
         return p_force
 
     # integrate physical state
-    def integrate_state(self, p_force): # It is this function that actually changes the 
+    def integrate_state(self, p_force): # It is this function that actually changes the state
         for i,entity in enumerate(self.entities):
             if not entity.movable: continue
             # Only for agents
@@ -177,8 +179,6 @@ class World(object):
                 if speed > entity.max_speed:
                     entity.state.p_vel = entity.state.p_vel / np.sqrt(np.square(entity.state.p_vel[0]) +
                                                                   np.square(entity.state.p_vel[1])) * entity.max_speed
-            if(entity.name=='agent 0'):
-                print('state.p_vel',entity.state.p_vel)
             entity.state.p_pos += entity.state.p_vel * self.dt
 
     def update_agent_state(self, agent):

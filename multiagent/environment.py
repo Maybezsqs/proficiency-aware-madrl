@@ -292,7 +292,6 @@ class MultiAgentEnv(gym.Env):
             # don't want this in KSU map to change building, forest and food every time
             # So changed entities to agents
             for e, entity in enumerate(self.world.agents):
-                print(entity.name,entity.state.p_pos)
                 self.render_geoms_xform[e].set_translation(*entity.state.p_pos) # Single * means the para sent is a tuple
             # render to display or array
             results.append(self.viewers[i].render(return_rgb_array = mode=='rgb_array'))
