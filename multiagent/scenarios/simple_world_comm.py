@@ -222,7 +222,7 @@ class Scenario(BaseScenario):
             x = abs(agent.state.p_pos[p])
             rew -= 2 * bound(x)
             if not bound(x) == 0:
-                print("bound")
+                #print("bound")
 
         for food in world.food:
             if self.is_collision(agent, food):
