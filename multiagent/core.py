@@ -213,13 +213,13 @@ class World(object):
                     center_x += coor[i][0]
                     center_y += coor[i][1]
                 p_pos = (center_x / 4, center_y / 4)
-                print(entity_a.name,p_pos)
                 # compute actual distance between the agent and the entity
                 delta_pos = p_pos - entity_b.state.p_pos
                 dist = np.sqrt(np.sum(np.square(delta_pos)))
                 # minimum allowable distance (safest!!!)
                 size = max(math.fabs(coor[0][0] - coor[1][0]), math.fabs(coor[0][1] - coor[1][1]), math.fabs(coor[1][0] - coor[2][0]), math.fabs(coor[1][1] - coor[2][1])) / 2
                 dist_min = size + entity_b.size
+                print(entity_a.name,p_pos,dist_min)
         else:
             return [None, None]
         # softmax penetration
@@ -228,4 +228,5 @@ class World(object):
         force = self.contact_force * delta_pos / dist * penetration
         force_a = +force if entity_a.movable else None
         force_b = -force if entity_b.movable else None
+        print(force_a,force_b)
         return [force_a, force_b]
