@@ -215,7 +215,7 @@ class World(object):
                 delta_pos = p_pos - entity_b.state.p_pos
                 dist = np.sqrt(np.sum(np.square(delta_pos)))
                 # minimum allowable distance (safest!!!)
-                building_range = max(np.sqrt(np.sum(np.square(np.array(p_pos)- c))) for c in coor) / 2 / np.sqrt(np.sum(np.square(np.array[25.0,41.25])))
+                building_range = max(np.sqrt(np.sum(np.square(np.array(p_pos)- c))) for c in coor) / 2 / np.sqrt(np.sum(np.square(np.array([25.0,41.25]))))
                 dist_min = building_range + entity_b.size
         else:
             return [None, None]
