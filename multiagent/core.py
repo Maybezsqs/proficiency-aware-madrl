@@ -213,13 +213,12 @@ class World(object):
                 for i in range(len(coor)):
                     center_x += coor[i][0]
                     center_y += coor[i][1]
-                    size.append(np.sqrt(np.sum(np.square(p_pos - coor[0]))))
                 p_pos = (center_x / 4, center_y / 4)
                 # compute actual distance between the agent and the entity
                 delta_pos = p_pos - entity_b.state.p_pos
                 dist = np.sqrt(np.sum(np.square(delta_pos)))
                 # minimum allowable distance (safest!!!)
-                building_size = max(s for s in size) / 2
+                building_size = max(np.sqrt(np.sum(np.square(p_pos - c))) for c in coor) / 2
                 dist_min = building_size + entity_b.size
                 print(entity_a.name,p_pos,dist_min)
         else:
