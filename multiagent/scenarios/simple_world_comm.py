@@ -137,6 +137,7 @@ class Scenario(BaseScenario):
             #agent.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
             # TODO This 1 is expected to be changed as tests and experiments
             agent.state.p_pos = red_chaser_init_pos[i] if i < self.num_adversaries else green_escaper_init_pos[1]
+            agent.state.p_pos = np.array([agent.state.p_pos[0] / 25.0, agent.state.p_pos[1] / 41.25])
             agent.state.p_vel = np.zeros(world.dim_p)
             agent.state.c = np.zeros(world.dim_c)
         for i, landmark in enumerate(world.landmarks):

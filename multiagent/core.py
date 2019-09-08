@@ -219,12 +219,8 @@ class World(object):
                 # minimum allowable distance (safest!!!)
                 size = max(math.fabs(coor[0][0] - coor[1][0]), math.fabs(coor[0][1] - coor[1][1]), math.fabs(coor[1][0] - coor[2][0]), math.fabs(coor[1][1] - coor[2][1])) / 2
                 dist_min = size + entity_b.size
-        # compute actual distance between agents(entities)
-        delta_pos = entity_a.state.p_pos - entity_b.state.p_pos
-        dist = np.sqrt(np.sum(np.square(delta_pos)))
-        # minimum allowable distance
-        dist_min = entity_a.size + entity_b.size
-
+        else:
+            return [None, None]
         # softmax penetration
         k = self.contact_margin
         penetration = np.logaddexp(0, -(dist - dist_min)/k)*k
