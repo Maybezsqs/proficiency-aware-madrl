@@ -209,16 +209,18 @@ class World(object):
                 landmark_id = entity_a.name[-1]
                 coor = ksu.building_coordinations[int(landmark_id)]
                 center_x, center_y = 0.0, 0.0
+                size = []
                 for i in range(len(coor)):
                     center_x += coor[i][0]
                     center_y += coor[i][1]
+                    size.append(np.sqrt(np.sum(np.square(p_pos - coor[0]))))
                 p_pos = (center_x / 4, center_y / 4)
                 # compute actual distance between the agent and the entity
                 delta_pos = p_pos - entity_b.state.p_pos
                 dist = np.sqrt(np.sum(np.square(delta_pos)))
                 # minimum allowable distance (safest!!!)
-                size = max(math.fabs(coor[0][0] - coor[1][0]), math.fabs(coor[0][1] - coor[1][1]), math.fabs(coor[1][0] - coor[2][0]), math.fabs(coor[1][1] - coor[2][1])) / 2
-                dist_min = size + entity_b.size
+                building_size = max(s for s in size) / 2
+                dist_min = building_size + entity_b.size
                 print(entity_a.name,p_pos,dist_min)
         else:
             return [None, None]
