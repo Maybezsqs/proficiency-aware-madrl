@@ -131,8 +131,8 @@ class Scenario(BaseScenario):
             landmark.color = np.array([0.6, 0.9, 0.6])
         # set random initial states
         # For experiment setting, I give three fixed positions for agents to start
-        red_chaser_init_pos = np.array([[-20.0,-45.0],[20.0,-40.0],[-20.0,35.0]])
-        green_escaper_init_pos = np.array([[3.0,-16.0],[5.0,20.0],[-23.0,-13.0]])
+        red_chaser_init_pos = np.array([[-25.0,-41.25],[25.0,-41.25],[-25.0,41.25]])
+        green_escaper_init_pos = np.array([[3.0,-16.0],[0.0,0.0],[5.0,20.0],[-23.0,-13.0],[25.0,41.25]])
         for i, agent in enumerate(world.agents):
             #agent.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
             # TODO This 1 is expected to be changed as tests and experiments
