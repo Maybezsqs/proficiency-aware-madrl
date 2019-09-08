@@ -209,7 +209,6 @@ class World(object):
                 landmark_id = entity_a.name[-1]
                 coor = ksu.building_coordinations[int(landmark_id)]
                 center_x, center_y = 0.0, 0.0
-                size = []
                 for i in range(len(coor)):
                     center_x += coor[i][0]
                     center_y += coor[i][1]
@@ -218,7 +217,8 @@ class World(object):
                 delta_pos = p_pos - entity_b.state.p_pos
                 dist = np.sqrt(np.sum(np.square(delta_pos)))
                 # minimum allowable distance (safest!!!)
-                building_size = max(np.sqrt(np.sum(np.square(p_pos - c))) for c in coor) / 2
+                building_size = max(np.sqrt(np.sum(np.square(np.array(p_pos)- np.array(c)))) for c in coor) / 2
+                #building_size = max(np.sqrt(np.square(p_pos[0] - c[0]) + np.square(p_pos[1] - c[1])) for c in coor) / 2
                 dist_min = building_size + entity_b.size
                 print(entity_a.name,p_pos,dist_min)
         else:
