@@ -22,7 +22,7 @@ def parse_args():
     parser.add_argument("--num-episodes", type=int, default=60000, help="number of episodes")
     # TODO adversaries should not be 0 in our competitive environment
     # default=0, I changed it to 1 to equals the num_adversaries in Scenario simple_world_comm
-    parser.add_argument("--num-adversaries", type=int, default=0, help="number of adversaries")
+    parser.add_argument("--num-adversaries", type=int, default=1, help="number of adversaries")
     parser.add_argument("--good-policy", type=str, default="maddpg", help="policy for good agents")
     parser.add_argument("--adv-policy", type=str, default="maddpg", help="policy of adversaries")
     # Core training parameters
