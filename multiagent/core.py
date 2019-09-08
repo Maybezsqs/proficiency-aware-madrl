@@ -44,7 +44,7 @@ class Entity(object):
         # state
         self.state = EntityState()
         # mass
-        self.initial_mass = 1.0
+        self.initial_mass = 2.0
 
     @property
     def mass(self):
@@ -97,7 +97,7 @@ class World(object):
         # simulation timestep
         self.dt = 0.1
         # physical damping
-        self.damping = 0.05 # 0.25
+        self.damping = 0.25
         # contact response parameters
         self.contact_force = 1e+2
         self.contact_margin = 1e-3
@@ -217,7 +217,7 @@ class World(object):
                 delta_pos = p_pos - entity_b.state.p_pos
                 dist = np.sqrt(np.sum(np.square(delta_pos)))
                 # minimum allowable distance (safest!!!)
-                building_size = max(np.sqrt(np.sum(np.square(np.array(p_pos)- np.array(c)))) for c in coor) / 2
+                building_size = max(np.sqrt(np.sum(np.square(np.array(p_pos)- c))) for c in coor) / 2
                 #building_size = max(np.sqrt(np.square(p_pos[0] - c[0]) + np.square(p_pos[1] - c[1])) for c in coor) / 2
                 dist_min = building_size + entity_b.size
                 print(entity_a.name,p_pos,dist_min)
