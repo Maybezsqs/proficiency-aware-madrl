@@ -159,11 +159,9 @@ class World(object):
                 if(f_a is not None):
                     if(p_force[a] is None): p_force[a] = 0.0
                     p_force[a] = f_a + p_force[a]
-                    #print(a,p_force[a])
                 if(f_b is not None):
                     if(p_force[b] is None): p_force[b] = 0.0
                     p_force[b] = f_b + p_force[b]
-                    #print(b,p_force[b])
         return p_force
 
     # integrate physical state
@@ -217,10 +215,8 @@ class World(object):
                 delta_pos = p_pos - entity_b.state.p_pos
                 dist = np.sqrt(np.sum(np.square(delta_pos)))
                 # minimum allowable distance (safest!!!)
-                building_size = max(np.sqrt(np.sum(np.square(np.array(p_pos)- c))) for c in coor) / 2
-                #building_size = max(np.sqrt(np.square(p_pos[0] - c[0]) + np.square(p_pos[1] - c[1])) for c in coor) / 2
-                dist_min = building_size + entity_b.size
-                print(entity_a.name,p_pos,dist_min)
+                building_range = max(np.sqrt(np.sum(np.square(np.array(p_pos)- c))) for c in coor) / 2 / np.sqrt(np.sum(np.square(np.array[25.0,41.25])))
+                dist_min = building_range + entity_b.size
         else:
             return [None, None]
         # softmax penetration
@@ -229,5 +225,4 @@ class World(object):
         force = self.contact_force * delta_pos / dist * penetration
         force_a = +force if entity_a.movable else None
         force_b = -force if entity_b.movable else None
-        print(force_a,force_b)
         return [force_a, force_b]

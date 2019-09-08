@@ -18,7 +18,7 @@ def parse_args():
     parser = argparse.ArgumentParser("Reinforcement Learning experiments for multiagent environments")
     # Environment
     parser.add_argument("--scenario", type=str, default="simple_world_comm", help="name of the scenario script")
-    parser.add_argument("--max-episode-len", type=int, default=25, help="maximum episode length")
+    parser.add_argument("--max-episode-len", type=int, default=40, help="maximum episode length") # default 25
     parser.add_argument("--num-episodes", type=int, default=60000, help="number of episodes")
     # TODO adversaries should not be 0 in our competitive environment
     # default=0, I changed it to 3 to equals the num_adversaries in Scenario simple_world_comm: 3 vs. 1
