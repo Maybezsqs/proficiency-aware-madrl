@@ -44,7 +44,7 @@ class Entity(object):
         # state
         self.state = EntityState()
         # mass
-        self.initial_mass = 2.0
+        self.initial_mass = 1.5
 
     @property
     def mass(self):
