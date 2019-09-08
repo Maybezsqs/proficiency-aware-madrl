@@ -213,6 +213,7 @@ class World(object):
                     center_x += coor[i][0]
                     center_y += coor[i][1]
                 p_pos = (center_x / 4, center_y / 4)
+                print(entity_a.name,p_pos)
                 # compute actual distance between the agent and the entity
                 delta_pos = p_pos - entity_b.state.p_pos
                 dist = np.sqrt(np.sum(np.square(delta_pos)))
