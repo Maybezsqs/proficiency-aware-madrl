@@ -221,7 +221,7 @@ class Scenario(BaseScenario):
         for p in range(world.dim_p):
             x = abs(agent.state.p_pos[p])
             rew -= 2 * bound(x)
-            if not bound(x) == 0:
+            #if not bound(x) == 0:
                 #print("bound")
 
         for food in world.food:
