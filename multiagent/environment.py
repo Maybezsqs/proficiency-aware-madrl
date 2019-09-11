@@ -277,7 +277,11 @@ class MultiAgentEnv(gym.Env):
                     coorScaledList = []
                     if 'landmark' in entity.name:
                         for coor in self.world.building_coordinations[i]:
+<<<<<<< HEAD
                             t = (coor[0] / 25.0, coor[1] / 41.25)
+=======
+                            t = (coor[0] / 25.0, coor[1] / 41.25) # * 1.75
+>>>>>>> c56565de1aa9fd83b3c259acc136e19d7e2e7991
                             coorScaledList.append(t)
                         i += 1
                     elif 'lawn' in entity.name:
@@ -304,10 +308,14 @@ class MultiAgentEnv(gym.Env):
         for i in range(len(self.viewers)):
             from multiagent import rendering
             # update bounds to center around agent
+<<<<<<< HEAD
             # TODO 50:82.5 = 1:1.65 ?
             can_range = 1
             #cam_range_w = 1
             #cam_range_h = 1.65
+=======
+            cam_range = 1 # 100% ?
+>>>>>>> c56565de1aa9fd83b3c259acc136e19d7e2e7991
             if self.shared_viewer: # True
                 pos = np.zeros(self.world.dim_p)
             else:

@@ -45,7 +45,7 @@ class Entity(object):
         # state
         self.state = EntityState()
         # mass
-        self.initial_mass = 1.0
+        self.initial_mass = 1.5
 
     @property
     def mass(self):
@@ -160,11 +160,9 @@ class World(object):
                 if(f_a is not None):
                     if(p_force[a] is None): p_force[a] = 0.0
                     p_force[a] = f_a + p_force[a]
-                    #print(a,p_force[a])
                 if(f_b is not None):
                     if(p_force[b] is None): p_force[b] = 0.0
                     p_force[b] = f_b + p_force[b]
-                    #print(b,p_force[b])
         return p_force
 
     # integrate physical state
@@ -218,15 +216,25 @@ class World(object):
                 for i in range(len(coor)):
                     center_x += coor[i][0]
                     center_y += coor[i][1]
+<<<<<<< HEAD
                 p_pos = (center_x / 4.0, center_y / 4.0)
+=======
+                p_pos = (center_x / 4, center_y / 4)
+>>>>>>> c56565de1aa9fd83b3c259acc136e19d7e2e7991
                 # compute actual distance between the agent and the entity
                 delta_pos = p_pos - entity_b.state.p_pos
                 dist = np.sqrt(np.sum(np.square(delta_pos)))
                 # minimum allowable distance (safest!!!)
+<<<<<<< HEAD
                 building_range = max(np.sqrt(np.sum(np.square(np.array(p_pos)- c))) for c in coor) / 41.25 # np.sqrt(np.sum(np.square(np.array([25.0,41.25]))))
                 dist_min = building_range + entity_b.size + 1.0 / 25.0
         else:
             # Two building landmarks
+=======
+                building_range = max(np.sqrt(np.sum(np.square(np.array(p_pos)- c))) for c in coor) / 2 / np.sqrt(np.sum(np.square(np.array([25.0,41.25]))))
+                dist_min = building_range + entity_b.size
+        else:
+>>>>>>> c56565de1aa9fd83b3c259acc136e19d7e2e7991
             return [None, None]
         # softmax penetration
         k = self.contact_margin

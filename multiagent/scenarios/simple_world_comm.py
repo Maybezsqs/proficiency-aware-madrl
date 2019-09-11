@@ -137,6 +137,7 @@ class Scenario(BaseScenario):
             landmark.color = np.array([0.6, 0.9, 0.6])
         # set random initial states
         # For experiment setting, I give three fixed positions for agents to start
+<<<<<<< HEAD
         for i, agent in enumerate(world.agents):
             #agent.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
             # TODO This 1 is expected to be changed as tests and experiments
@@ -147,6 +148,15 @@ class Scenario(BaseScenario):
                 random.seed(time.time() * 10000 - 100)
                 randomDes = random.sample(ksu.green_escaper_init_pos,1)
                 agent.state.p_pos = np.array([randomDes[0][0] / 25.0, randomDes[0][1] / 41.25])
+=======
+        red_chaser_init_pos = np.array([[-22.0,-38.25],[222.0,-38.25],[-22.0,38.25]])
+        green_escaper_init_pos = np.array([[0.0,0.0],[3.0,-16.0],[5.0,20.0],[-23.0,-13.0],[25.0,41.25]])
+        for i, agent in enumerate(world.agents):
+            #agent.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
+            # TODO This 1 is expected to be changed as tests and experiments
+            agent.state.p_pos = red_chaser_init_pos[i] if i < self.num_adversaries else green_escaper_init_pos[1]
+            agent.state.p_pos = np.array([agent.state.p_pos[0] / 25.0, agent.state.p_pos[1] / 41.25])
+>>>>>>> c56565de1aa9fd83b3c259acc136e19d7e2e7991
             agent.state.p_vel = np.zeros(world.dim_p)
             agent.state.c = np.zeros(world.dim_c)
         # Can below part be deleted, unuseful
@@ -242,11 +252,12 @@ class Scenario(BaseScenario):
         adversaries = self.adversaries(world)
         if shape:
             for adv in adversaries:
-                rew += 0.1 * np.sqrt(np.sum(np.square(agent.state.p_pos - adv.state.p_pos)))
+                rew += 0.1 * np.sqrt(np.sum(np.square(agent.state.p_pos - adv.state.p_pos))) # The further, the better
         if agent.collide:
             for a in adversaries:
                 # Penalty for being caught
                 if self.is_collision(a, agent):
+                    print("Caught :-(")
                     rew -= 5
         '''
         def bound(x):
@@ -259,6 +270,7 @@ class Scenario(BaseScenario):
         for p in range(world.dim_p):
             x = abs(agent.state.p_pos[p])
             rew -= 2 * bound(x)
+<<<<<<< HEAD
         '''
         assert world.dim_p == 2
         x = agent.state.p_pos[0]
@@ -271,10 +283,15 @@ class Scenario(BaseScenario):
             rew -= np.exp(10 * (abs(y) - 1.0))
         elif y < -10.0 / 41.25:
             rew -= np.exp(10 * (abs(y) - 10.0 / 41.25))
+=======
+            #if not bound(x) == 0:
+                #print("bound")
+>>>>>>> c56565de1aa9fd83b3c259acc136e19d7e2e7991
 
         for food in world.food:
             if self.is_collision(agent, food):
                 rew += 2
+                print("food")
         rew += 0.05 * min([np.sqrt(np.sum(np.square(food.state.p_pos - agent.state.p_pos))) for food in world.food])
 
         return rew
@@ -286,7 +303,7 @@ class Scenario(BaseScenario):
         agents = self.good_agents(world)
         adversaries = self.adversaries(world)
         if shape:
-            rew -= 0.1 * min([np.sqrt(np.sum(np.square(a.state.p_pos - agent.state.p_pos))) for a in agents])
+            rew -= 0.1 * min([np.sqrt(np.sum(np.square(a.state.p_pos - agent.state.p_pos))) for a in agents]) # The further the worse
         if agent.collide:
             for ag in agents:
                 for adv in adversaries:
