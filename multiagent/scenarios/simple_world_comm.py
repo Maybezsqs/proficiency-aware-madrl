@@ -2,6 +2,9 @@ import numpy as np
 from multiagent.core import World, Agent, Landmark
 from multiagent.scenario import BaseScenario
 
+import multiagent.scenarios.ksu_map as ksu
+import random
+import time
 
 class Scenario(BaseScenario):
     def make_world(self):
@@ -13,10 +16,11 @@ class Scenario(BaseScenario):
         #world.damping = 1
         self.num_good_agents = 1
         self.num_adversaries = 3
+        self.num_uav = 2
         num_agents = self.num_adversaries + self.num_good_agents
         
         # For KSU
-        import multiagent.scenarios.ksu_map as ksu
+        
         world.building_coordinations = ksu.building_coordinations
         # TODO currently without the lawn of circle shape
         world.lawn_coordinations = ksu.lawn_coordinations
@@ -35,17 +39,19 @@ class Scenario(BaseScenario):
             
             # Adversaries special
             agent.adversary = True if i < self.num_adversaries else False # This is very important, first adversaries, then good agents
-            agent.size = 0.045 if agent.adversary else 0.025
-            agent.accel = 3.0 if agent.adversary else 4.0
+            agent.size = 0.98 / 2 / 25.0 # 0.045 if agent.adversary else 0.025
+            agent.accel = 1.5 if agent.adversary else 3.0 # agent.accel = 3.0 if agent.adversary else 4.0
             #agent.accel = 20.0 if agent.adversary else 25.0
             agent.max_speed = 1.0 if agent.adversary else 1.3
+            agent.initial_mass = 1.0 if i < self.num_uav else 0.3
+
         # add landmarks
         world.landmarks = [Landmark() for i in range(num_landmarks)]
         for i, landmark in enumerate(world.landmarks): # buildings
             landmark.name = 'landmark %d' % i
             landmark.collide = True
             landmark.movable = False
-            landmark.size = 0.2
+            landmark.size = None
             landmark.boundary = False
         world.food = [Landmark() for i in range(num_food)]
         for i, landmark in enumerate(world.food):
@@ -59,7 +65,7 @@ class Scenario(BaseScenario):
             landmark.name = 'forest %d' % i
             landmark.collide = False
             landmark.movable = False
-            landmark.size = 0.1
+            landmark.size = None
             landmark.boundary = False
         world.lawns = [Landmark() for i in range(num_lawns)]
         for i, landmark in enumerate(world.lawns):
@@ -67,7 +73,7 @@ class Scenario(BaseScenario):
             # TODO what does collide property mean for all entities?
             landmark.collide = False
             landmark.movable = False
-            landmark.size = 0.1
+            landmark.size = None
             # TODO what does boundary property mean here?
             landmark.boundary = False
 
@@ -131,14 +137,19 @@ class Scenario(BaseScenario):
             landmark.color = np.array([0.6, 0.9, 0.6])
         # set random initial states
         # For experiment setting, I give three fixed positions for agents to start
-        red_chaser_init_pos = np.array([[-20.0,-45.0],[20.0,-40.0],[-20.0,35.0]])
-        green_escaper_init_pos = np.array([[3.0,-16.0],[5.0,20.0],[-23.0,-13.0]])
         for i, agent in enumerate(world.agents):
             #agent.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
             # TODO This 1 is expected to be changed as tests and experiments
-            agent.state.p_pos = red_chaser_init_pos[i] if i < self.num_adversaries else green_escaper_init_pos[1]
+            if i < self.num_adversaries:
+                agent.state.p_pos = ksu.red_chaser_init_pos[i]
+                agent.state.p_pos = np.array([agent.state.p_pos[0] / 25.0, agent.state.p_pos[1] / 41.25])
+            else:
+                random.seed(time.time() * 10000 - 100)
+                randomDes = random.sample(ksu.green_escaper_init_pos,1)
+                agent.state.p_pos = np.array([randomDes[0][0] / 25.0, randomDes[0][1] / 41.25])
             agent.state.p_vel = np.zeros(world.dim_p)
             agent.state.c = np.zeros(world.dim_c)
+        # Can below part be deleted, unuseful
         for i, landmark in enumerate(world.landmarks):
             landmark.state.p_pos = np.random.uniform(-0.9, +0.9, world.dim_p)
             landmark.state.p_vel = np.zeros(world.dim_p)
@@ -165,11 +176,39 @@ class Scenario(BaseScenario):
             return 0
 
 
+    def getCircle(self, p1, p2, p3):
+                    x21 = p2[0] - p1[0]
+                    y21 = p2[1] - p1[1]
+                    x32 = p3[0] - p2[0]
+                    y32 = p3[1] - p2[1]
+                    # three colinear
+                    if (x21 * y32 - x32 * y21 == 0):
+                        return None
+                    xy21 = p2[0] * p2[0] - p1[0] * p1[0] + p2[1] * p2[1] - p1[1] * p1[1]
+                    xy32 = p3[0] * p3[0] - p2[0] * p2[0] + p3[1] * p3[1] - p2[1] * p2[1]
+                    y0 = (x32 * xy21 - x21 * xy32) / (2 * (y21 * x32 - y32 * x21))
+                    x0 = (xy21 - 2 * y0 * y21) / (2.0 * x21)
+                    R = ((p1[0] - x0) ** 2 + (p1[1] - y0) ** 2) ** 0.5
+                    return x0, y0, R
+
+
     def is_collision(self, agent1, agent2):
-        delta_pos = agent1.state.p_pos - agent2.state.p_pos
-        dist = np.sqrt(np.sum(np.square(delta_pos)))
-        # TODO dist_min may need modification due to real robots in gazebo
-        dist_min = agent1.size + agent2.size
+        if "forest" not in agent2.name:
+            delta_pos = agent1.state.p_pos - agent2.state.p_pos
+            dist = np.sqrt(np.sum(np.square(delta_pos)))
+            # TODO dist_min may need modification due to real robots in gazebo
+            dist_min = agent1.size + agent2.size + 2.0 / 25.0
+        else:
+            # TODO only agent2 can possibly be the forest
+            forest_id = agent2.name[-1]
+            coor = ksu.forest_coordinations[int(forest_id)]
+            center_x, center_y, r = self.getCircle(coor[0], coor[1], coor[2])
+            p_pos = (center_x / 25.0, center_y / 41.25)
+
+            delta_pos = agent1.state.p_pos - p_pos
+            dist = np.sqrt(np.sum(np.square(delta_pos)))
+            dist_min = agent1.size + r
+
         return True if dist < dist_min else False
 
 
@@ -209,6 +248,7 @@ class Scenario(BaseScenario):
                 # Penalty for being caught
                 if self.is_collision(a, agent):
                     rew -= 5
+        '''
         def bound(x):
             if x < 0.9:
                 return 0
@@ -219,6 +259,18 @@ class Scenario(BaseScenario):
         for p in range(world.dim_p):
             x = abs(agent.state.p_pos[p])
             rew -= 2 * bound(x)
+        '''
+        assert world.dim_p == 2
+        x = agent.state.p_pos[0]
+        if x > 1.0 or x < -1.0:
+            rew -= np.exp(10 * (abs(x) - 1.0))
+        elif x > 0.9 or x < -0.9:
+            rew -= 10 * (abs(x) - 1.0)
+        y = agent.state.p_pos[1]
+        if y > 1.0:
+            rew -= np.exp(10 * (abs(y) - 1.0))
+        elif y < -10.0 / 41.25:
+            rew -= np.exp(10 * (abs(y) - 10.0 / 41.25))
 
         for food in world.food:
             if self.is_collision(agent, food):
@@ -240,6 +292,7 @@ class Scenario(BaseScenario):
                 for adv in adversaries:
                     if self.is_collision(ag, adv):
                         rew += 5
+                        print("Caught :-)")
         return rew
 
     # Observation settings below is very important!! Keep in mind!! Need more modifications!!
@@ -276,7 +329,28 @@ class Scenario(BaseScenario):
         entity_pos = []
         for entity in world.landmarks:
             if not entity.boundary:
-                entity_pos.append(entity.state.p_pos - agent.state.p_pos)
+                if not "food" in entity.name:
+                    # Polygon center
+                    landmark_id = entity.name[-1]
+                    if "landmark" in entity.name:
+                        coor = ksu.building_coordinations[int(landmark_id)]
+                    elif "lawn" in entity.name:
+                        coor = ksu.lawn_coordinations[int(landmark_id)]
+                    elif "forest" in entity.name:
+                        coor = ksu.forest_coordinations[int(landmark_id)]
+                    # Compute the center coordination in python simulation
+                    if len(coor) == 4:
+                        center_x, center_y = 0.0, 0.0
+                        for i in range(4):
+                            center_x += coor[i][0]
+                            center_y += coor[i][1]
+                        p_pos = (center_x / 4.0 / 25.0, center_y / 4.0 / 41.25)
+                    elif len(coor) == 3:
+                        center_x, center_y, _ = self.getCircle(coor[0], coor[1], coor[2])
+                        p_pos = (center_x / 25.0, center_y / 41.25)
+                    entity_pos.append(p_pos - agent.state.p_pos)
+                else:
+                    entity_pos.append(entity.state.p_pos - agent.state.p_pos)
 
         # Self in forest detection
         in_forest = [np.array([-1]), np.array([-1])]

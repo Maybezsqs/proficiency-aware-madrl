@@ -22,7 +22,7 @@ def parse_args():
     parser.add_argument("--num-episodes", type=int, default=60000, help="number of episodes")
     # TODO adversaries should not be 0 in our competitive environment
     # default=0, I changed it to 1 to equals the num_adversaries in Scenario simple_world_comm
-    parser.add_argument("--num-adversaries", type=int, default=0, help="number of adversaries")
+    parser.add_argument("--num-adversaries", type=int, default=1, help="number of adversaries")
     parser.add_argument("--good-policy", type=str, default="maddpg", help="policy for good agents")
     parser.add_argument("--adv-policy", type=str, default="maddpg", help="policy of adversaries")
     # Core training parameters
@@ -32,7 +32,7 @@ def parse_args():
     parser.add_argument("--num-units", type=int, default=64, help="number of units in the mlp")
     # Checkpointing
     parser.add_argument("--exp-name", type=str, default="swc", help="name of the experiment")
-    parser.add_argument("--save-dir", type=str, default="/tmp/policy/", help="directory in which training state and model should be saved")
+    parser.add_argument("--save-dir", type=str, default="/home/yijiang/results/", help="directory in which training state and model should be saved")
     parser.add_argument("--save-rate", type=int, default=5000, help="save model once every time this many episodes are completed")
     parser.add_argument("--load-dir", type=str, default="", help="directory in which training state and model are loaded")
     # Evaluation
@@ -41,7 +41,7 @@ def parse_args():
     parser.add_argument("--benchmark", action="store_true", default=False)
     parser.add_argument("--benchmark-iters", type=int, default=100000, help="number of iterations run for benchmarking")
     parser.add_argument("--benchmark-dir", type=str, default="./benchmark_files/", help="directory where benchmark data is saved")
-    parser.add_argument("--plots-dir", type=str, default="./learning_curves/", help="directory where plot data is saved")
+    parser.add_argument("--plots-dir", type=str, default="/home/yijiang/results/learning_curves/", help="directory where plot data is saved")
     return parser.parse_args()
 
 def mlp_model(input, num_outputs, scope, reuse=False, num_units=64, rnn_cell=None):
@@ -108,7 +108,7 @@ def train(arglist):
         if (arglist.display and arglist.load_dir != "") or arglist.restore or arglist.benchmark:
             print('Loading previous state from %s...' % arglist.load_dir)
             U.load_state(arglist.load_dir)
-        else:
+        elif arglist.display is not True:
             print('Saving model to %s...' % arglist.save_dir)
 
         episode_rewards = [0.0]  # sum of rewards for all agents
@@ -127,7 +127,17 @@ def train(arglist):
         while True:
             # get action: for each agent i, select action ai = i (oi) + Nt w.r.t. the current policy and exploration
             # Through training(maddpg)
-            action_n = [agent.action(obs) for agent, obs in zip(trainers,obs_n)] # obs_n: 4x62(first) then 4x56; 4 because of 4 agents(trainers) in total
+            
+            ######
+            #action_n = [agent.action(obs) for agent, obs in zip(trainers,obs_n)] # obs_n: 4x62(first) then 4x56; 4 because of 4 agents(trainers) in total
+            action_n = []
+            for agent, obs in zip(trainers, obs_n):
+                #print("obs: ",obs)
+                act_ = agent.action(obs)
+                #print("act_: ",act_)
+                action_n.append(act_)
+            ######
+
             # action_n: num_agents x 9
             # environment step: Execute actions a = (a1; : : : ; aN) and observe reward r and new state x0
             new_obs_n, rew_n, done_n, info_n = env.step(action_n)

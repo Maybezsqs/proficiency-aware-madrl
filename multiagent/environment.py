@@ -73,7 +73,7 @@ class MultiAgentEnv(gym.Env):
             agent.action.c = np.zeros(self.world.dim_c)
 
         # rendering
-        self.shared_viewer = shared_viewer # True
+        self.shared_viewer = shared_viewer # True, so only one view(window)
         if self.shared_viewer:
             self.viewers = [None]
         else:
@@ -151,7 +151,7 @@ class MultiAgentEnv(gym.Env):
         agent.action.u = np.zeros(self.world.dim_p) # Action.u: physical action x and y
         agent.action.c = np.zeros(self.world.dim_c) # Action.c: communication action, for simple_world_comm it is 4, weird...
         # process action
-        if isinstance(action_space, MultiDiscrete):
+        if isinstance(action_space, MultiDiscrete): # Only agent 0 is True here
             act = []
             size = action_space.high - action_space.low + 1
             index = 0
@@ -161,6 +161,7 @@ class MultiAgentEnv(gym.Env):
             action = act
         else:
             action = [action]
+        print(agent.name,action)
 
         if agent.movable:
             # physical action
@@ -185,10 +186,11 @@ class MultiAgentEnv(gym.Env):
             if agent.accel is not None: # True
                 sensitivity = agent.accel
             agent.action.u *= sensitivity
+            print("agent.action.u",agent.action.u)
             action = action[1:]
         if not agent.silent:
             # communication action
-            if self.discrete_action_input:
+            if self.discrete_action_input: # False
                 agent.action.c = np.zeros(self.world.dim_c)
                 agent.action.c[action[0]] = 1.0
             else:
@@ -235,12 +237,32 @@ class MultiAgentEnv(gym.Env):
             self.render_geoms = []
             self.render_geoms_xform = []
 
+            ################################################
+            # Test length of dangerous area
+            import multiagent.scenarios.ksu_map as ksu
+            color = np.array([0.5, 0.5, 0.5]) # black
+            for b in range(len(ksu.building_coordinations)):
+                coor = ksu.building_coordinations[b]
+                center_x, center_y = 0.0, 0.0
+                for i in range(len(coor)):
+                    center_x += coor[i][0]
+                    center_y += coor[i][1]
+                p_pos = (center_x / 4.0, center_y / 4.0)
+                max_long_sum = max(np.sum(np.square(np.array(p_pos)- c)) for c in coor)
+                #half_dia = np.sqrt(np.sum(np.square(np.array([25.0,41.25]))))
+                building_range = np.sqrt(max_long_sum) / 41.25
+                geom = rendering.make_circle(building_range)
+                geom.set_color(*color, alpha=0.3)
+                xform = rendering.Transform()
+                geom.add_attr(xform)
+                xform.set_translation(*(p_pos[0] / 25.0, p_pos[1] / 41.25))
+                self.render_geoms.append(geom)
+            ################################################
+
             # entities: agents + landmarks
             # and landmarks is different from agents in real robotic scenario
             i, j, k = 0, 0, 0
             for entity in self.world.entities:
-                #geom = rendering.make_circle(entity.size)
-                #xform = rendering.Transform()
                 if 'agent' in entity.name:
                     geom = rendering.make_circle(entity.size)
                     geom.set_color(*entity.color, alpha=0.5)
@@ -255,17 +277,17 @@ class MultiAgentEnv(gym.Env):
                     coorScaledList = []
                     if 'landmark' in entity.name:
                         for coor in self.world.building_coordinations[i]:
-                            t = (coor[0] * 1.75 / 50, coor[1] * 1.75 / 82.5)
+                            t = (coor[0] / 25.0, coor[1] / 41.25)
                             coorScaledList.append(t)
                         i += 1
                     elif 'lawn' in entity.name:
                         for coor in self.world.lawn_coordinations[j]:
-                            t = (coor[0] * 1.75 / 50, coor[1] * 1.75 / 82.5)
+                            t = (coor[0] / 25.0, coor[1] / 41.25)
                             coorScaledList.append(t)
                         j += 1
                     elif 'forest' in entity.name:
                         for coor in self.world.forest_coordinations[k]:
-                            t = (coor[0] * 1.75 / 50, coor[1] * 1.75 / 82.5)
+                            t = (coor[0] / 25.0, coor[1] / 41.25)
                             coorScaledList.append(t)
                         k += 1
                     geom = rendering.make_polygon(coorScaledList)
@@ -282,17 +304,22 @@ class MultiAgentEnv(gym.Env):
         for i in range(len(self.viewers)):
             from multiagent import rendering
             # update bounds to center around agent
-            cam_range = 1
+            # TODO 50:82.5 = 1:1.65 ?
+            can_range = 1
+            #cam_range_w = 1
+            #cam_range_h = 1.65
             if self.shared_viewer: # True
                 pos = np.zeros(self.world.dim_p)
             else:
                 pos = self.agents[i].state.p_pos
-            self.viewers[i].set_bounds(pos[0]-cam_range,pos[0]+cam_range,pos[1]-cam_range,pos[1]+cam_range) # Is this 100% or other meanings?
+            # TODO What does viewers mean?
+            #self.viewers[i].set_bounds(pos[0]-cam_range_w,pos[0]+cam_range_w,pos[1]-cam_range_h,pos[1]+cam_range_h)
+            self.viewers[i].set_bounds(pos[0]-can_range,pos[0]+can_range,pos[1]-can_range,pos[1]+can_range)
             # update geometry positions every episode
             # don't want this in KSU map to change building, forest and food every time
             # So changed entities to agents
             for e, entity in enumerate(self.world.agents):
-                self.render_geoms_xform[e].set_translation(*entity.state.p_pos) # Single * means the para sent is a tuple
+                self.render_geoms_xform[e].set_translation(*entity.state.p_pos) # Single * means the parameter sent is a tuple
             # render to display or array
             results.append(self.viewers[i].render(return_rgb_array = mode=='rgb_array'))
 

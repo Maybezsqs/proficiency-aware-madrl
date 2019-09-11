@@ -7,6 +7,7 @@ class EntityState(object):
         self.p_pos = None
         # physical velocity
         self.p_vel = None
+        # TODO no yaw in python simulation
 
 # state of agents (including communication and internal/mental state)
 class AgentState(EntityState):
@@ -95,9 +96,9 @@ class World(object):
         # color dimensionality
         self.dim_color = 3 # rgb
         # simulation timestep
-        self.dt = 0.1
+        self.dt = 0.1 # TODO This is different from gazebo where it is 0.5. Does it make a difference?
         # physical damping
-        self.damping = 0.05 # 0.25
+        self.damping = 0.25
         # contact response parameters
         self.contact_force = 1e+2
         self.contact_margin = 1e-3
@@ -175,10 +176,9 @@ class World(object):
             if (p_force[i] is not None):
                 entity.state.p_vel += (p_force[i] / entity.mass) * self.dt
             if entity.max_speed is not None:
-                speed = np.sqrt(np.square(entity.state.p_vel[0]) + np.square(entity.state.p_vel[1]))
+                speed = np.sqrt(np.square(entity.state.p_vel[0]) + np.square(entity.state.p_vel[1] * 1.65)) # 1.65?
                 if speed > entity.max_speed:
-                    entity.state.p_vel = entity.state.p_vel / np.sqrt(np.square(entity.state.p_vel[0]) +
-                                                                  np.square(entity.state.p_vel[1])) * entity.max_speed
+                    entity.state.p_vel = entity.state.p_vel / speed * entity.max_speed
             entity.state.p_pos += entity.state.p_vel * self.dt
 
     def update_agent_state(self, agent):
@@ -190,41 +190,44 @@ class World(object):
             agent.state.c = agent.action.c + noise
 
     # get collision forces for any contact between two entities (a < b)
+    # TODO different perception of the world with different robots
     def get_collision_force(self, entity_a, entity_b):
         if (not entity_a.collide) or (not entity_b.collide):
             return [None, None] # not a collider
         if (entity_a is entity_b):
             return [None, None] # don't collide against itself
         if 'agent' in entity_a.name:
-            # compute actual distance between agents(entities)
+            # compute actual distance between two agents(entities)
             delta_pos = entity_a.state.p_pos - entity_b.state.p_pos
             dist = np.sqrt(np.sum(np.square(delta_pos)))
             # minimum allowable distance
-            dist_min = entity_a.size + entity_b.size
+            dist_min = entity_a.size + entity_b.size + 2.0 / 25.0
         elif 'agent' in entity_b.name:
             # a is landscape but b is agent
             import multiagent.scenarios.ksu_map as ksu
             import math
             if 'landmark' in entity_a.name:
+                # Consider agent collide with landmark
+                # Exclude uav with small buildings
+                # TODO change the number of UAV and UGV
+                #if ("0" or "1" in entity_b.name) and ("4" not in entity_a.name):
+                #    return [None, None] # UAV can fly above some buildings except for building 4
                 landmark_id = entity_a.name[-1]
                 coor = ksu.building_coordinations[int(landmark_id)]
                 center_x, center_y = 0.0, 0.0
                 for i in range(len(coor)):
                     center_x += coor[i][0]
                     center_y += coor[i][1]
-                p_pos = (center_x, center_y)
+                p_pos = (center_x / 4.0, center_y / 4.0)
                 # compute actual distance between the agent and the entity
                 delta_pos = p_pos - entity_b.state.p_pos
                 dist = np.sqrt(np.sum(np.square(delta_pos)))
                 # minimum allowable distance (safest!!!)
-                size = max(math.fabs(coor[0][0] - coor[1][0]), math.fabs(coor[0][1] - coor[1][1]), math.fabs(coor[1][0] - coor[2][0]), math.fabs(coor[1][1] - coor[2][1])) / 2
-                dist_min = size + entity_b.size
-        # compute actual distance between agents(entities)
-        delta_pos = entity_a.state.p_pos - entity_b.state.p_pos
-        dist = np.sqrt(np.sum(np.square(delta_pos)))
-        # minimum allowable distance
-        dist_min = entity_a.size + entity_b.size
-
+                building_range = max(np.sqrt(np.sum(np.square(np.array(p_pos)- c))) for c in coor) / 41.25 # np.sqrt(np.sum(np.square(np.array([25.0,41.25]))))
+                dist_min = building_range + entity_b.size + 1.0 / 25.0
+        else:
+            # Two building landmarks
+            return [None, None]
         # softmax penetration
         k = self.contact_margin
         penetration = np.logaddexp(0, -(dist - dist_min)/k)*k
