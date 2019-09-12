@@ -18,11 +18,16 @@ def parse_args():
     parser = argparse.ArgumentParser("Reinforcement Learning experiments for multiagent environments")
     # Environment
     parser.add_argument("--scenario", type=str, default="simple_world_comm", help="name of the scenario script")
-    parser.add_argument("--max-episode-len", type=int, default=25, help="maximum episode length")
+    parser.add_argument("--max-episode-len", type=int, default=75, help="maximum episode length") # default 25
     parser.add_argument("--num-episodes", type=int, default=60000, help="number of episodes")
     # TODO adversaries should not be 0 in our competitive environment
+<<<<<<< HEAD
     # default=0, I changed it to 1 to equals the num_adversaries in Scenario simple_world_comm
     parser.add_argument("--num-adversaries", type=int, default=1, help="number of adversaries")
+=======
+    # default=0, I changed it to 3 to equals the num_adversaries in Scenario simple_world_comm: 3 vs. 1
+    parser.add_argument("--num-adversaries", type=int, default=3, help="number of adversaries")
+>>>>>>> c56565de1aa9fd83b3c259acc136e19d7e2e7991
     parser.add_argument("--good-policy", type=str, default="maddpg", help="policy for good agents")
     parser.add_argument("--adv-policy", type=str, default="maddpg", help="policy of adversaries")
     # Core training parameters
@@ -92,7 +97,7 @@ def train(arglist):
         # The number of agent trainers equals env.n(the number agents using policy to control`)
         obs_shape_n = [env.observation_space[i].shape for i in range(env.n)]
         # TODO Change the number of adversary
-        num_adversaries = min(env.n, arglist.num_adversaries)
+        num_adversaries = min(env.n, arglist.num_adversaries) # compute min is to ensure that the number of adversary will not exceed the total robot number
         trainers = get_trainers(env, num_adversaries, obs_shape_n, arglist)
         print('Using good policy {} and adv policy {}'.format(arglist.good_policy, arglist.adv_policy))
 
