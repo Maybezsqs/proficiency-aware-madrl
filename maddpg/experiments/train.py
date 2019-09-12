@@ -125,6 +125,7 @@ def train(arglist):
 
         print('Starting iterations...')
         while True:
+            #print("Episode %d, step %d" % (train_step, episode_step))
             # get action: for each agent i, select action ai = i (oi) + Nt w.r.t. the current policy and exploration
             # Through training(maddpg)
             

@@ -161,7 +161,7 @@ class MultiAgentEnv(gym.Env):
             action = act
         else:
             action = [action]
-        print(agent.name,action)
+        #print(agent.name,action)
 
         if agent.movable:
             # physical action
@@ -182,11 +182,11 @@ class MultiAgentEnv(gym.Env):
                     agent.action.u[1] += action[0][3] - action[0][4]
                 else:
                     agent.action.u = action[0]
-            sensitivity = 5.0
+            sensitivity = 3.0
             if agent.accel is not None: # True
                 sensitivity = agent.accel
             agent.action.u *= sensitivity
-            print("agent.action.u",agent.action.u)
+            #print("agent.action.u",agent.action.u)
             action = action[1:]
         if not agent.silent:
             # communication action
@@ -238,25 +238,18 @@ class MultiAgentEnv(gym.Env):
             self.render_geoms_xform = []
 
             ################################################
-            # Test length of dangerous area
+            '''
             import multiagent.scenarios.ksu_map as ksu
             color = np.array([0.5, 0.5, 0.5]) # black
             for b in range(len(ksu.building_coordinations)):
-                coor = ksu.building_coordinations[b]
-                center_x, center_y = 0.0, 0.0
-                for i in range(len(coor)):
-                    center_x += coor[i][0]
-                    center_y += coor[i][1]
-                p_pos = (center_x / 4.0, center_y / 4.0)
-                max_long_sum = max(np.sum(np.square(np.array(p_pos)- c)) for c in coor)
-                #half_dia = np.sqrt(np.sum(np.square(np.array([25.0,41.25]))))
-                building_range = np.sqrt(max_long_sum) / 41.25
-                geom = rendering.make_circle(building_range)
+                building = self.world.landmarks[b]
+                geom = rendering.make_circle(building.size)
                 geom.set_color(*color, alpha=0.3)
                 xform = rendering.Transform()
                 geom.add_attr(xform)
-                xform.set_translation(*(p_pos[0] / 25.0, p_pos[1] / 41.25))
+                xform.set_translation(*(building.state.p_pos[0], building.state.p_pos[1]))
                 self.render_geoms.append(geom)
+            '''
             ################################################
 
             # entities: agents + landmarks
@@ -273,6 +266,7 @@ class MultiAgentEnv(gym.Env):
                 elif 'food' in entity.name:
                     geom = rendering.make_circle(entity.size)
                     geom.set_color(*entity.color)
+                    # Should add xform
                 else:
                     coorScaledList = []
                     if 'landmark' in entity.name:

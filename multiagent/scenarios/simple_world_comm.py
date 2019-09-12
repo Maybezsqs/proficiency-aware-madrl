@@ -17,10 +17,7 @@ class Scenario(BaseScenario):
         self.num_good_agents = 1
         self.num_adversaries = 3
         self.num_uav = 2
-        num_agents = self.num_adversaries + self.num_good_agents
-        
-        # For KSU
-        
+        num_agents = self.num_adversaries + self.num_good_agents       
         world.building_coordinations = ksu.building_coordinations
         # TODO currently without the lawn of circle shape
         world.lawn_coordinations = ksu.lawn_coordinations
@@ -40,10 +37,10 @@ class Scenario(BaseScenario):
             # Adversaries special
             agent.adversary = True if i < self.num_adversaries else False # This is very important, first adversaries, then good agents
             agent.size = 0.98 / 2 / 25.0 # 0.045 if agent.adversary else 0.025
-            agent.accel = 1.5 if agent.adversary else 3.0 # agent.accel = 3.0 if agent.adversary else 4.0
+            agent.accel = 2.0 if agent.adversary else 3.0 # agent.accel = 3.0 if agent.adversary else 4.0
             #agent.accel = 20.0 if agent.adversary else 25.0
             agent.max_speed = 1.0 if agent.adversary else 1.3
-            agent.initial_mass = 1.0 if i < self.num_uav else 0.3
+            agent.initial_mass = 2.0 if i < self.num_uav else 1.5
 
         # add landmarks
         world.landmarks = [Landmark() for i in range(num_landmarks)]
@@ -51,7 +48,16 @@ class Scenario(BaseScenario):
             landmark.name = 'landmark %d' % i
             landmark.collide = True
             landmark.movable = False
-            landmark.size = None
+            coor = ksu.building_coordinations[i]
+            center_x, center_y = 0.0, 0.0
+            for j in range(len(coor)):
+                center_x += coor[j][0]
+                center_y += coor[j][1]
+            center = np.array([center_x / 4.0, center_y / 4.0])
+            landmark.state.p_pos = np.array([center[0] / 25.0, center[1] / 41.25])
+            max_sqrsum = max(np.sum(np.square(c - center)) for c in coor)
+            half_dia = np.sqrt(np.sum(np.square(np.array([25.0,41.25]))))
+            landmark.size = np.sqrt(max_sqrsum) / half_dia
             landmark.boundary = False
         world.food = [Landmark() for i in range(num_food)]
         for i, landmark in enumerate(world.food):
@@ -65,7 +71,9 @@ class Scenario(BaseScenario):
             landmark.name = 'forest %d' % i
             landmark.collide = False
             landmark.movable = False
-            landmark.size = None
+            coor = ksu.forest_coordinations[i]
+            center_x, center_y, landmark.size = self.getCircle(coor[0], coor[1], coor[2])
+            landmark.state.p_pos = np.array([center_x / 25.0, center_y / 41.25])
             landmark.boundary = False
         world.lawns = [Landmark() for i in range(num_lawns)]
         for i, landmark in enumerate(world.lawns):
@@ -73,7 +81,10 @@ class Scenario(BaseScenario):
             # TODO what does collide property mean for all entities?
             landmark.collide = False
             landmark.movable = False
+
+            # TODO should be the same with forests and buildings
             landmark.size = None
+
             # TODO what does boundary property mean here?
             landmark.boundary = False
 
@@ -81,7 +92,6 @@ class Scenario(BaseScenario):
         world.landmarks += world.food
         world.landmarks += world.forests
         world.landmarks += world.lawns
-        # TODO the line below:???
         #world.landmarks += self.set_boundaries(world)  # world boundaries now penalized with negative reward
         # make initial conditions
         self.reset_world(world)
@@ -141,28 +151,20 @@ class Scenario(BaseScenario):
             #agent.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
             # TODO This 1 is expected to be changed as tests and experiments
             if i < self.num_adversaries:
-                agent.state.p_pos = ksu.red_chaser_init_pos[i]
-                agent.state.p_pos = np.array([agent.state.p_pos[0] / 25.0, agent.state.p_pos[1] / 41.25])
+                agent.state.p_pos = np.array([ksu.red_chaser_init_pos[i][0] / 25.0, ksu.red_chaser_init_pos[i][1] / 41.25])
             else:
                 random.seed(time.time() * 10000 - 100)
-                randomDes = random.sample(ksu.green_escaper_init_pos,1)
-                agent.state.p_pos = np.array([randomDes[0][0] / 25.0, randomDes[0][1] / 41.25])
+                randomInit = random.sample(ksu.green_escaper_init_pos,1)
+                agent.state.p_pos = np.array([randomInit[0][0] / 25.0, randomInit[0][1] / 41.25])
             agent.state.p_vel = np.zeros(world.dim_p)
             agent.state.c = np.zeros(world.dim_c)
-        # Can below part be deleted, unuseful
-        for i, landmark in enumerate(world.landmarks):
-            landmark.state.p_pos = np.random.uniform(-0.9, +0.9, world.dim_p)
-            landmark.state.p_vel = np.zeros(world.dim_p)
-        for i, landmark in enumerate(world.food):
-            landmark.state.p_pos = np.random.uniform(-0.9, +0.9, world.dim_p)
-            landmark.state.p_vel = np.zeros(world.dim_p)
-        for i, landmark in enumerate(world.forests):
-            landmark.state.p_pos = np.random.uniform(-0.9, +0.9, world.dim_p)
-            landmark.state.p_vel = np.zeros(world.dim_p)
-        '''
-        for i, landmark in enumerate(world.lawns):
-            landmark.state.p_pos = 
-        '''
+        for i, lawns in enumerate(world.lawns):
+            lawns.state.p_pos = np.random.uniform(-0.9, +0.9, world.dim_p)
+            lawns.state.p_vel = np.zeros(world.dim_p)
+        for i, food in enumerate(world.food):
+            #food.state.p_pos = np.random.uniform(-0.9, +0.9, world.dim_p)
+            food.state.p_pos = ksu.food_pos[i]
+            food.state.p_vel = np.zeros(world.dim_p)
 
 
     def benchmark_data(self, agent, world):
@@ -193,22 +195,10 @@ class Scenario(BaseScenario):
 
 
     def is_collision(self, agent1, agent2):
-        if "forest" not in agent2.name:
-            delta_pos = agent1.state.p_pos - agent2.state.p_pos
-            dist = np.sqrt(np.sum(np.square(delta_pos)))
-            # TODO dist_min may need modification due to real robots in gazebo
-            dist_min = agent1.size + agent2.size + 2.0 / 25.0
-        else:
-            # TODO only agent2 can possibly be the forest
-            forest_id = agent2.name[-1]
-            coor = ksu.forest_coordinations[int(forest_id)]
-            center_x, center_y, r = self.getCircle(coor[0], coor[1], coor[2])
-            p_pos = (center_x / 25.0, center_y / 41.25)
-
-            delta_pos = agent1.state.p_pos - p_pos
-            dist = np.sqrt(np.sum(np.square(delta_pos)))
-            dist_min = agent1.size + r
-
+        delta_pos = agent1.state.p_pos - agent2.state.p_pos
+        dist = np.sqrt(np.sum(np.square(delta_pos)))
+        # TODO dist_min may need modification due to real robots in gazebo
+        dist_min = agent1.size + agent2.size + 2.0 / 25.0
         return True if dist < dist_min else False
 
 
@@ -248,6 +238,7 @@ class Scenario(BaseScenario):
                 # Penalty for being caught
                 if self.is_collision(a, agent):
                     rew -= 5
+                    #print("Caught(good) :-(")
         '''
         def bound(x):
             if x < 0.9:
@@ -292,7 +283,7 @@ class Scenario(BaseScenario):
                 for adv in adversaries:
                     if self.is_collision(ag, adv):
                         rew += 5
-                        print("Caught :-)")
+                        #print("Caught(adv) :-)")
         return rew
 
     # Observation settings below is very important!! Keep in mind!! Need more modifications!!
@@ -329,29 +320,22 @@ class Scenario(BaseScenario):
         entity_pos = []
         for entity in world.landmarks:
             if not entity.boundary:
-                if not "food" in entity.name:
+                if "lawn" in entity.name:
                     # Polygon center
                     landmark_id = entity.name[-1]
-                    if "landmark" in entity.name:
-                        coor = ksu.building_coordinations[int(landmark_id)]
-                    elif "lawn" in entity.name:
-                        coor = ksu.lawn_coordinations[int(landmark_id)]
-                    elif "forest" in entity.name:
-                        coor = ksu.forest_coordinations[int(landmark_id)]
-                    # Compute the center coordination in python simulation
+                    coor = ksu.lawn_coordinations[int(landmark_id)]
                     if len(coor) == 4:
                         center_x, center_y = 0.0, 0.0
                         for i in range(4):
                             center_x += coor[i][0]
                             center_y += coor[i][1]
-                        p_pos = (center_x / 4.0 / 25.0, center_y / 4.0 / 41.25)
+                        p_pos = np.array([center_x / 4.0 / 25.0, center_y / 4.0 / 41.25])
                     elif len(coor) == 3:
                         center_x, center_y, _ = self.getCircle(coor[0], coor[1], coor[2])
-                        p_pos = (center_x / 25.0, center_y / 41.25)
+                        p_pos = np.array([center_x / 25.0, center_y / 41.25])
                     entity_pos.append(p_pos - agent.state.p_pos)
                 else:
                     entity_pos.append(entity.state.p_pos - agent.state.p_pos)
-
         # Self in forest detection
         in_forest = [np.array([-1]), np.array([-1])]
         inf1 = False
@@ -379,7 +363,7 @@ class Scenario(BaseScenario):
             ## Settings about same forest vision block
             ## should be in the same forest or both not in the forest or is the leader itself than can have the vision
             if (inf1 and oth_f1) or (inf2 and oth_f2) or (not inf1 and not oth_f1 and not inf2 and not oth_f2) or agent.leader:  #without forest vis
-                other_pos.append(other.state.p_pos - agent.state.p_pos)
+                other_pos.append(np.array(other.state.p_pos) - agent.state.p_pos)
                 if not other.adversary:
                     other_vel.append(other.state.p_vel)
             else:

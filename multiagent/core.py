@@ -160,11 +160,9 @@ class World(object):
                 if(f_a is not None):
                     if(p_force[a] is None): p_force[a] = 0.0
                     p_force[a] = f_a + p_force[a]
-                    #print(a,p_force[a])
                 if(f_b is not None):
                     if(p_force[b] is None): p_force[b] = 0.0
                     p_force[b] = f_b + p_force[b]
-                    #print(b,p_force[b])
         return p_force
 
     # integrate physical state
@@ -176,10 +174,11 @@ class World(object):
             if (p_force[i] is not None):
                 entity.state.p_vel += (p_force[i] / entity.mass) * self.dt
             if entity.max_speed is not None:
-                speed = np.sqrt(np.square(entity.state.p_vel[0]) + np.square(entity.state.p_vel[1] * 1.65)) # 1.65?
+                speed = np.sqrt(np.square(entity.state.p_vel[0]) + np.square(entity.state.p_vel[1])) # 1.65?
                 if speed > entity.max_speed:
                     entity.state.p_vel = entity.state.p_vel / speed * entity.max_speed
             entity.state.p_pos += entity.state.p_vel * self.dt
+            #print(entity.state.p_vel[0] * 25.0, entity.state.p_vel[1] * 41.25)
 
     def update_agent_state(self, agent):
         # set communication state (directly for now)
@@ -196,6 +195,9 @@ class World(object):
             return [None, None] # not a collider
         if (entity_a is entity_b):
             return [None, None] # don't collide against itself
+        if ("landmark" in entity_a.name or "landmark" in entity_b.name):
+            return [None, None] # Building landmark don't collide with another building landmark
+        '''
         if 'agent' in entity_a.name:
             # compute actual distance between two agents(entities)
             delta_pos = entity_a.state.p_pos - entity_b.state.p_pos
@@ -228,6 +230,12 @@ class World(object):
         else:
             # Two building landmarks
             return [None, None]
+        '''
+        # compute actual distance between two agents(entities)
+        delta_pos = entity_a.state.p_pos - entity_b.state.p_pos
+        dist = np.sqrt(np.sum(np.square(delta_pos)))
+        # minimum allowable distance
+        dist_min = entity_a.size + entity_b.size + 2.0 / 25.0
         # softmax penetration
         k = self.contact_margin
         penetration = np.logaddexp(0, -(dist - dist_min)/k)*k

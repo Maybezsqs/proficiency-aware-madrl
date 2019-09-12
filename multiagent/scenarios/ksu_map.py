@@ -113,6 +113,7 @@ forest_coordinations = [[(1.0,21.5),
 			[(7.0,17.5),
 					(27.5,17.5),
 					(24.5,30.5)]]
-import numpy as np
-red_chaser_init_pos = np.array([[-5.0,10.0],[-10.0,30.0],[20.0,35.0]])
-green_escaper_init_pos = ([18.0,33.0],[0.0,15.0],[-7,30.0])
+
+red_chaser_init_pos = [[-5.0,2.0],[-20.0,37.0],[20.0,36.0]]
+green_escaper_init_pos = [[0.0,10.0],[-7.0,27.0],[18.0,27.0]]
+food_pos = [[-2.0,5.0],[-15.0,-35.0]]
