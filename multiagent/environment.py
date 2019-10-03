@@ -347,7 +347,7 @@ class MultiAgentEnv(gym.Env):
             self.render_geoms_xform = []
 
             # Here geom is an png image
-            geom = rendering.Image("ksu.png",500,825)
+            geom = rendering.Image("png/ksu.png",500,825)
             #geom.set_color(0, 0, 0, alpha=0)
             self.render_geoms.append(geom)
 
