@@ -353,7 +353,19 @@ class MultiAgentEnv(gym.Env):
 
             for entity in self.world.entities:
                 if 'agent' in entity.name:
-                    geom = rendering.make_circle(entity.size)
+                    if entity.ugv:
+                        coorScaledList = []
+                        t = (entity.state.p_pos[0] - entity.size / 2, entity.state.p_pos[1] + entity.size / 2)
+                        coorScaledList.append(t)
+                        t = (entity.state.p_pos[0] + entity.size / 2, entity.state.p_pos[1] + entity.size / 2)
+                        coorScaledList.append(t)
+                        t = (entity.state.p_pos[0] - entity.size / 2, entity.state.p_pos[1] - entity.size / 2)
+                        coorScaledList.append(t)
+                        t = (entity.state.p_pos[0] + entity.size / 2, entity.state.p_pos[1] - entity.size / 2)
+                        coorScaledList.append(t)
+                        geom = rendering.make_polygon(coorScaledList)
+                    else:
+                        geom = rendering.make_circle(entity.size)
                     geom.set_color(*entity.color, alpha=0.5)
                     xform = rendering.Transform()
                     geom.add_attr(xform)
