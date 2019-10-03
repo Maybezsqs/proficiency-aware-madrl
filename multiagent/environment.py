@@ -359,17 +359,17 @@ class MultiAgentEnv(gym.Env):
                         coorScaledList.append(t)
                         t = (entity.state.p_pos[0] + entity.size / 2, entity.state.p_pos[1] + entity.size / 2)
                         coorScaledList.append(t)
-                        t = (entity.state.p_pos[0] - entity.size / 2, entity.state.p_pos[1] - entity.size / 2)
-                        coorScaledList.append(t)
                         t = (entity.state.p_pos[0] + entity.size / 2, entity.state.p_pos[1] - entity.size / 2)
+                        coorScaledList.append(t)
+                        t = (entity.state.p_pos[0] - entity.size / 2, entity.state.p_pos[1] - entity.size / 2)
                         coorScaledList.append(t)
                         geom = rendering.make_polygon(coorScaledList)
                     else:
                         geom = rendering.make_circle(entity.size)
+                        xform = rendering.Transform()
+                        geom.add_attr(xform)
+                        self.render_geoms_xform.append(xform)
                     geom.set_color(*entity.color, alpha=0.5)
-                    xform = rendering.Transform()
-                    geom.add_attr(xform)
-                    self.render_geoms_xform.append(xform)
                     self.render_geoms.append(geom)
                 elif 'food' in entity.name:
                     geom = rendering.make_circle(entity.size)
@@ -403,7 +403,8 @@ class MultiAgentEnv(gym.Env):
             # update geometry positions every episode
             # don't want this in KSU map to change building, forest and food every time, so I changed entities to agents
             for e, entity in enumerate(self.world.agents):
-                self.render_geoms_xform[e].set_translation(*entity.state.p_pos)
+                if not entity.ugv:
+                    self.render_geoms_xform[e].set_translation(*entity.state.p_pos)
             # render to display or array
             results.append(self.viewers[i].render(return_rgb_array = mode=='rgb_array'))
 
