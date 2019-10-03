@@ -135,7 +135,7 @@ class Scenario(BaseScenario):
         # shadow green:lawn:[0.6, 0.9, 0.6]
         # blue:good food:[0.15, 0.15, 0.65]
         for i, agent in enumerate(world.agents):
-            agent.color = np.array([0.45, 0.95, 0.45]) if not agent.adversary else np.array([0.95, 0.45, 0.45])
+            agent.color = np.array([0.95, 0.45, 0.45]) if not agent.adversary else np.array([0.45, 0.95, 0.45])
             #agent.color -= np.array([0.3, 0.3, 0.3]) if agent.leader else np.array([0, 0, 0])
             agent.color -= np.array([0.3, 0.3, 0.3]) if agent.ugv and agent.adversary else np.array([0, 0, 0])
             # random properties for landmarks
