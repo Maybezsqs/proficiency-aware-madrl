@@ -18,8 +18,9 @@ dependencies:
   - ncurses=6.1=he6710b0_1
   - numpy=1.14.5=py35h1b885b7_4
   - numpy-base=1.14.5=py35hdbf6ddf_4
-  - openssl=1.0.2s=h7b6447c_0
+  - openssl=1.0.2t=h7b6447c_1
   - python=3.5.4=hc3d631a_27
+  - pytz=2019.2=py_0
   - readline=7.0=h7b6447c_5
   - sqlite=3.29.0=h7b6447c_0
   - tk=8.6.8=hbc83047_0
@@ -53,11 +54,11 @@ dependencies:
     - setuptools==41.2.0
     - six==1.12.0
     - tensorboard==1.8.0
-    - tensorflow==1.8.0
     - tensorflow-estimator==1.14.0
+    - tensorflow-gpu==1.8.0
     - termcolor==1.1.0
     - urllib3==1.25.3
     - werkzeug==0.15.5
     - wrapt==1.11.2
-prefix: /home/crai/anaconda3/envs/mape
+prefix: /home/yijiang/anaconda2/envs/mape
 

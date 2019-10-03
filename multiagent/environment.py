@@ -18,7 +18,7 @@ class MultiAgentEnv(gym.Env):
         self.world = world
         self.agents = self.world.policy_agents
         # set required vectorized gym env property
-        # TODO Maybe the policy agents should exclude the adversary one
+        # TODO Maybe the policy agents should exclude the adversary one to do the comparison
         self.n = len(world.policy_agents)
         # scenario callbacks
         self.reset_callback = reset_callback
@@ -33,8 +33,7 @@ class MultiAgentEnv(gym.Env):
         # if true, even the action is continuous, action will be performed discretely
         self.force_discrete_action = world.discrete_action if hasattr(world, 'discrete_action') else False # False
         # if true, every agent has the same reward
-        # TODO Currently, hasattr(world, 'collaborative') is False
-        self.shared_reward = world.collaborative if hasattr(world, 'collaborative') else False
+        self.shared_reward = world.collaborative if hasattr(world, 'collaborative') else False # False
         self.time = 0
 
         # configure spaces
@@ -182,11 +181,12 @@ class MultiAgentEnv(gym.Env):
                     agent.action.u[1] += action[0][3] - action[0][4]
                 else:
                     agent.action.u = action[0]
-            sensitivity = 3.0
+            sensitivity = 5.0
             if agent.accel is not None: # True
                 sensitivity = agent.accel
             agent.action.u *= sensitivity
-            #print("agent.action.u",agent.action.u)
+            #agent.action.u[0] = min(agent.action.u[0], 0.1) if agent.action.u[0] >= 0 else max(agent.action.u[0], -0.1)
+            #agent.action.u[1] = min(agent.action.u[1], 0.1) if agent.action.u[1] >= 0 else max(agent.action.u[1], -0.1)
             action = action[1:]
         if not agent.silent:
             # communication action
@@ -237,7 +237,6 @@ class MultiAgentEnv(gym.Env):
             self.render_geoms = []
             self.render_geoms_xform = []
 
-            ################################################
             '''
             import multiagent.scenarios.ksu_map as ksu
             color = np.array([0.5, 0.5, 0.5]) # black
@@ -250,32 +249,27 @@ class MultiAgentEnv(gym.Env):
                 xform.set_translation(*(building.state.p_pos[0], building.state.p_pos[1]))
                 self.render_geoms.append(geom)
             '''
-            ################################################
 
-            # entities: agents + landmarks
-            # and landmarks is different from agents in real robotic scenario
+            # entities: landmarks + agents
             i, j, k = 0, 0, 0
             for entity in self.world.entities:
                 if 'agent' in entity.name:
                     geom = rendering.make_circle(entity.size)
                     geom.set_color(*entity.color, alpha=0.5)
-                    # Only agents will transform currently
                     xform = rendering.Transform()
                     geom.add_attr(xform)
                     self.render_geoms_xform.append(xform)
                 elif 'food' in entity.name:
                     geom = rendering.make_circle(entity.size)
                     geom.set_color(*entity.color)
-                    # Should add xform
+                    xform = rendering.Transform()
+                    geom.add_attr(xform)
+                    xform.set_translation(*(entity.state.p_pos[0], entity.state.p_pos[1]))
                 else:
                     coorScaledList = []
                     if 'landmark' in entity.name:
                         for coor in self.world.building_coordinations[i]:
-<<<<<<< HEAD
-                            t = (coor[0] / 25.0, coor[1] / 41.25)
-=======
                             t = (coor[0] / 25.0, coor[1] / 41.25) # * 1.75
->>>>>>> c56565de1aa9fd83b3c259acc136e19d7e2e7991
                             coorScaledList.append(t)
                         i += 1
                     elif 'lawn' in entity.name:
@@ -302,30 +296,95 @@ class MultiAgentEnv(gym.Env):
         for i in range(len(self.viewers)):
             from multiagent import rendering
             # update bounds to center around agent
-<<<<<<< HEAD
             # TODO 50:82.5 = 1:1.65 ?
             can_range = 1
             #cam_range_w = 1
             #cam_range_h = 1.65
-=======
-            cam_range = 1 # 100% ?
->>>>>>> c56565de1aa9fd83b3c259acc136e19d7e2e7991
             if self.shared_viewer: # True
                 pos = np.zeros(self.world.dim_p)
             else:
                 pos = self.agents[i].state.p_pos
-            # TODO What does viewers mean?
-            #self.viewers[i].set_bounds(pos[0]-cam_range_w,pos[0]+cam_range_w,pos[1]-cam_range_h,pos[1]+cam_range_h)
+            # TODO set_bounds function: self.viewers[i].set_bounds(pos[0]-cam_range_w,pos[0]+cam_range_w,pos[1]-cam_range_h,pos[1]+cam_range_h)
             self.viewers[i].set_bounds(pos[0]-can_range,pos[0]+can_range,pos[1]-can_range,pos[1]+can_range)
             # update geometry positions every episode
-            # don't want this in KSU map to change building, forest and food every time
-            # So changed entities to agents
+            # don't want this in KSU map to change building, forest and food every time, so I changed entities to agents
             for e, entity in enumerate(self.world.agents):
-                self.render_geoms_xform[e].set_translation(*entity.state.p_pos) # Single * means the parameter sent is a tuple
+                self.render_geoms_xform[e].set_translation(*entity.state.p_pos)
             # render to display or array
             results.append(self.viewers[i].render(return_rgb_array = mode=='rgb_array'))
 
         return results
+
+
+    def render_real(self, mode='human'):
+        for i in range(len(self.viewers)):
+            # create viewers (if necessary)
+            if self.viewers[i] is None:
+                # import rendering only if we need it (and don't import for headless machines)
+                #from gym.envs.classic_control import rendering
+                from multiagent import rendering
+                # The size of screen
+                self.viewers[i] = rendering.Viewer(500,825)
+
+        # create rendering geometry
+        if self.render_geoms is None:
+            # import rendering only if we need it (and don't import for headless machines)
+            #from gym.envs.classic_control import rendering
+            from multiagent import rendering
+            self.render_geoms = []
+            self.render_geoms_xform = []
+
+            # Here geom is an png image
+            geom = rendering.Image("ksu.png",500,825)
+            #geom.set_color(0, 0, 0, alpha=0)
+            self.render_geoms.append(geom)
+
+            for entity in self.world.entities:
+                if 'agent' in entity.name:
+                    geom = rendering.make_circle(entity.size)
+                    geom.set_color(*entity.color, alpha=0.5)
+                    xform = rendering.Transform()
+                    geom.add_attr(xform)
+                    self.render_geoms_xform.append(xform)
+                    self.render_geoms.append(geom)
+                elif 'food' in entity.name:
+                    geom = rendering.make_circle(entity.size)
+                    geom.set_color(*entity.color)
+                    xform = rendering.Transform()
+                    geom.add_attr(xform)
+                    xform.set_translation(*(entity.state.p_pos[0], entity.state.p_pos[1]))
+                    self.render_geoms.append(geom)
+
+            # add geoms to viewer
+            for viewer in self.viewers:
+                viewer.geoms = []
+                for geom in self.render_geoms:
+                    viewer.add_geom(geom)
+
+        results = []
+        for i in range(len(self.viewers)):
+            from multiagent import rendering
+            # update bounds to center around agent
+            # TODO 50:82.5 = 1:1.65 ?
+            can_range = 1
+            #cam_range_w = 1
+            #cam_range_h = 1.65
+            if self.shared_viewer: # True
+                pos = np.zeros(self.world.dim_p)
+            else:
+                pos = self.agents[i].state.p_pos
+            # TODO set_bounds function: self.viewers[i].set_bounds(pos[0]-cam_range_w,pos[0]+cam_range_w,pos[1]-cam_range_h,pos[1]+cam_range_h)
+            #self.viewers[i].set_bounds(1000-can_range,1000+can_range,150-can_range,150+can_range)
+            self.viewers[i].set_bounds(pos[0]-can_range,pos[0]+can_range,pos[1]-can_range,pos[1]+can_range)
+            # update geometry positions every episode
+            # don't want this in KSU map to change building, forest and food every time, so I changed entities to agents
+            for e, entity in enumerate(self.world.agents):
+                self.render_geoms_xform[e].set_translation(*entity.state.p_pos)
+            # render to display or array
+            results.append(self.viewers[i].render(return_rgb_array = mode=='rgb_array'))
+
+        return results
+
 
     # create receptor field locations in local coordinate frame
     def _make_receptor_locations(self, agent):

@@ -45,7 +45,7 @@ class Entity(object):
         # state
         self.state = EntityState()
         # mass
-        self.initial_mass = 1.5
+        self.initial_mass = 1.0
 
     @property
     def mass(self):
@@ -90,13 +90,13 @@ class World(object):
         # landmarks=buildings,food,forests,lawns
         self.landmarks = []
         # communication channel dimensionality
-        self.dim_c = 0 # ?
+        self.dim_c = 0
         # position dimensionality
         self.dim_p = 2 # x and y
         # color dimensionality
         self.dim_color = 3 # rgb
-        # simulation timestep
-        self.dt = 0.1 # TODO This is different from gazebo where it is 0.5. Does it make a difference?
+        # simulation timestep TODO
+        self.dt = 0.1
         # physical damping
         self.damping = 0.25
         # contact response parameters
@@ -107,6 +107,7 @@ class World(object):
         self.building_coordinations = []
         self.lawn_coordinations = []
         self.forest_coordinations = []
+        self.food_coordinations = []
 
     # return all entities in the world
     @property
@@ -177,8 +178,9 @@ class World(object):
                 speed = np.sqrt(np.square(entity.state.p_vel[0]) + np.square(entity.state.p_vel[1])) # 1.65?
                 if speed > entity.max_speed:
                     entity.state.p_vel = entity.state.p_vel / speed * entity.max_speed
+            entity.state.p_vel[1] /= 1.65 # TODO scaling set_bounds in environment.py
             entity.state.p_pos += entity.state.p_vel * self.dt
-            #print(entity.state.p_vel[0] * 25.0, entity.state.p_vel[1] * 41.25)
+
 
     def update_agent_state(self, agent):
         # set communication state (directly for now)
@@ -195,15 +197,17 @@ class World(object):
             return [None, None] # not a collider
         if (entity_a is entity_b):
             return [None, None] # don't collide against itself
-        if ("landmark" in entity_a.name or "landmark" in entity_b.name):
-            return [None, None] # Building landmark don't collide with another building landmark
+        if (not entity_a.movable and not entity_b.movable):
+            return [None, None] # Non-movable objects don't collide with each other
+        if ("6" not in entity_a.name and not entity_b.ugv):
+            return [None, None] # uav has more reachable spaces than ugv except for the tallest library building
         '''
         if 'agent' in entity_a.name:
             # compute actual distance between two agents(entities)
             delta_pos = entity_a.state.p_pos - entity_b.state.p_pos
             dist = np.sqrt(np.sum(np.square(delta_pos)))
             # minimum allowable distance
-            dist_min = entity_a.size + entity_b.size + 2.0 / 25.0
+            dist_min = entity_a.size + entity_b.size # + 2.0 / 25.0
         elif 'agent' in entity_b.name:
             # a is landscape but b is agent
             import multiagent.scenarios.ksu_map as ksu
@@ -220,25 +224,15 @@ class World(object):
                 for i in range(len(coor)):
                     center_x += coor[i][0]
                     center_y += coor[i][1]
-<<<<<<< HEAD
                 p_pos = (center_x / 4.0, center_y / 4.0)
-=======
-                p_pos = (center_x / 4, center_y / 4)
->>>>>>> c56565de1aa9fd83b3c259acc136e19d7e2e7991
                 # compute actual distance between the agent and the entity
                 delta_pos = p_pos - entity_b.state.p_pos
                 dist = np.sqrt(np.sum(np.square(delta_pos)))
                 # minimum allowable distance (safest!!!)
-<<<<<<< HEAD
                 building_range = max(np.sqrt(np.sum(np.square(np.array(p_pos)- c))) for c in coor) / 41.25 # np.sqrt(np.sum(np.square(np.array([25.0,41.25]))))
                 dist_min = building_range + entity_b.size + 1.0 / 25.0
         else:
             # Two building landmarks
-=======
-                building_range = max(np.sqrt(np.sum(np.square(np.array(p_pos)- c))) for c in coor) / 2 / np.sqrt(np.sum(np.square(np.array([25.0,41.25]))))
-                dist_min = building_range + entity_b.size
-        else:
->>>>>>> c56565de1aa9fd83b3c259acc136e19d7e2e7991
             return [None, None]
         '''
         # compute actual distance between two agents(entities)

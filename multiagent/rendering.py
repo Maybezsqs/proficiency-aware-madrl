@@ -55,13 +55,13 @@ class Viewer(object):
         self.onetime_geoms = []
         self.transform = Transform()
 
-        glEnable(GL_BLEND)
+        glEnable(GL_BLEND) ###
         # glEnable(GL_MULTISAMPLE)
         glEnable(GL_LINE_SMOOTH)
         # glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE)
         glHint(GL_LINE_SMOOTH_HINT, GL_NICEST)
         glLineWidth(2.0)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA) ###
 
     def close(self):
         self.window.close()
@@ -312,11 +312,12 @@ class Image(Geom):
         Geom.__init__(self)
         self.width = width
         self.height = height
-        img = pyglet.image.load(fname)
+        img = pyglet.image.load(fname) # img = pyglet.resource.image(fname)
         self.img = img
         self.flip = False
     def render1(self):
-        self.img.blit(-self.width/2, -self.height/2, width=self.width, height=self.height)
+        #self.img.blit(-self.width/2, -self.height/2, width=self.width, height=self.height)
+        self.img.blit(0, 0)
 
 # ================================================================
 

@@ -12,20 +12,26 @@ class Scenario(BaseScenario):
         # set any world properties first
         # Set communication state dimension
         # State: set and changed by action
-        world.dim_c = 4 # default 0 
+        world.dim_c = 4 # default 0
         #world.damping = 1
+
+        self.half_dia = np.sqrt(np.sum(np.square(np.array([25.0,41.25]))))
         self.num_good_agents = 1
         self.num_adversaries = 3
         self.num_uav = 2
-        num_agents = self.num_adversaries + self.num_good_agents       
+        self.num_cooperator = 2
+        num_agents = self.num_adversaries + self.num_good_agents      
+
         world.building_coordinations = ksu.building_coordinations
-        # TODO currently without the lawn of circle shape
-        world.lawn_coordinations = ksu.lawn_coordinations
         world.forest_coordinations = ksu.forest_coordinations
+        world.lawn_coordinations = ksu.lawn_coordinations # TODO currently without the lawn of circle shape
+        world.food_coordinations = ksu.food_coordinations 
+
         num_landmarks = len(world.building_coordinations)
         num_forests = len(world.forest_coordinations)
         num_lawns = len(world.lawn_coordinations)
-        num_food = 2
+        num_food = len(world.food_coordinations)
+
         # add agents
         world.agents = [Agent() for i in range(num_agents)]
         for i, agent in enumerate(world.agents):
@@ -36,18 +42,19 @@ class Scenario(BaseScenario):
             
             # Adversaries special
             agent.adversary = True if i < self.num_adversaries else False # This is very important, first adversaries, then good agents
+            agent.ugv = False if i < self.num_uav else True
             agent.size = 0.98 / 2 / 25.0 # 0.045 if agent.adversary else 0.025
-            agent.accel = 2.0 if agent.adversary else 3.0 # agent.accel = 3.0 if agent.adversary else 4.0
+            agent.accel = 2.0 if agent.adversary else 4.0
             #agent.accel = 20.0 if agent.adversary else 25.0
-            agent.max_speed = 1.0 if agent.adversary else 1.3
-            agent.initial_mass = 2.0 if i < self.num_uav else 1.5
+            agent.max_speed = 0.4 if agent.ugv else 0.8
+            agent.max_speed += 1.0 if not agent.adversary else 0
+            agent.initial_mass = 1.0 if agent.ugv else 0.7
 
         # add landmarks
         world.landmarks = [Landmark() for i in range(num_landmarks)]
         for i, landmark in enumerate(world.landmarks): # buildings
             landmark.name = 'landmark %d' % i
             landmark.collide = True
-            landmark.movable = False
             coor = ksu.building_coordinations[i]
             center_x, center_y = 0.0, 0.0
             for j in range(len(coor)):
@@ -56,42 +63,37 @@ class Scenario(BaseScenario):
             center = np.array([center_x / 4.0, center_y / 4.0])
             landmark.state.p_pos = np.array([center[0] / 25.0, center[1] / 41.25])
             max_sqrsum = max(np.sum(np.square(c - center)) for c in coor)
-            half_dia = np.sqrt(np.sum(np.square(np.array([25.0,41.25]))))
-            landmark.size = np.sqrt(max_sqrsum) / half_dia
+            landmark.size = np.sqrt(max_sqrsum) / self.half_dia
             landmark.boundary = False
         world.food = [Landmark() for i in range(num_food)]
         for i, landmark in enumerate(world.food):
             landmark.name = 'food %d' % i
             landmark.collide = False
-            landmark.movable = False
-            landmark.size = 0.02
+            landmark.size = 0.015 # The target of red ugv
             landmark.boundary = False
+            landmark.state.p_pos = np.array([ksu.food_coordinations[i][0] / 25.0, ksu.food_coordinations[i][1] / 41.25])
         world.forests = [Landmark() for i in range(num_forests)]
         for i, landmark in enumerate(world.forests):
             landmark.name = 'forest %d' % i
             landmark.collide = False
-            landmark.movable = False
             coor = ksu.forest_coordinations[i]
             center_x, center_y, landmark.size = self.getCircle(coor[0], coor[1], coor[2])
+            landmark.size /= self.half_dia
             landmark.state.p_pos = np.array([center_x / 25.0, center_y / 41.25])
             landmark.boundary = False
         world.lawns = [Landmark() for i in range(num_lawns)]
         for i, landmark in enumerate(world.lawns):
             landmark.name = 'lawn %d' % i
-            # TODO what does collide property mean for all entities?
             landmark.collide = False
-            landmark.movable = False
-
             # TODO should be the same with forests and buildings
             landmark.size = None
-
             # TODO what does boundary property mean here?
             landmark.boundary = False
 
-        # Landmarks in world: landmarks + food + forests
-        world.landmarks += world.food
+        # Landmarks in world: landmarks + forests + lawn + food
         world.landmarks += world.forests
-        world.landmarks += world.lawns
+        world.landmarks += world.lawns 
+        world.landmarks += world.food
         #world.landmarks += self.set_boundaries(world)  # world boundaries now penalized with negative reward
         # make initial conditions
         self.reset_world(world)
@@ -118,7 +120,6 @@ class Scenario(BaseScenario):
         for i, l in enumerate(boundary_list):
             l.name = 'boundary %d' % i
             l.collide = True
-            l.movable = False
             l.boundary = True
             l.color = np.array([0.75, 0.75, 0.75])
             l.size = landmark_size
@@ -135,7 +136,8 @@ class Scenario(BaseScenario):
         # blue:good food:[0.15, 0.15, 0.65]
         for i, agent in enumerate(world.agents):
             agent.color = np.array([0.45, 0.95, 0.45]) if not agent.adversary else np.array([0.95, 0.45, 0.45])
-            agent.color -= np.array([0.3, 0.3, 0.3]) if agent.leader else np.array([0, 0, 0])
+            #agent.color -= np.array([0.3, 0.3, 0.3]) if agent.leader else np.array([0, 0, 0])
+            agent.color -= np.array([0.3, 0.3, 0.3]) if agent.ugv and agent.adversary else np.array([0, 0, 0])
             # random properties for landmarks
         for i, landmark in enumerate(world.landmarks):
             landmark.color = np.array([0.50, 0.55, 0.55])
@@ -147,46 +149,27 @@ class Scenario(BaseScenario):
             landmark.color = np.array([0.6, 0.9, 0.6])
         # set random initial states
         # For experiment setting, I give three fixed positions for agents to start
-<<<<<<< HEAD
         for i, agent in enumerate(world.agents):
             #agent.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
             # TODO This 1 is expected to be changed as tests and experiments
             if i < self.num_adversaries:
                 agent.state.p_pos = np.array([ksu.red_chaser_init_pos[i][0] / 25.0, ksu.red_chaser_init_pos[i][1] / 41.25])
             else:
-                random.seed(time.time() * 10000 - 100)
-<<<<<<< HEAD
+                random.seed(time.time() * 10000 / 403.712 - 100)
                 randomInit = random.sample(ksu.green_escaper_init_pos,1)
                 agent.state.p_pos = np.array([randomInit[0][0] / 25.0, randomInit[0][1] / 41.25])
-=======
-                randomDes = random.sample(ksu.green_escaper_init_pos,1)
-                agent.state.p_pos = np.array([randomDes[0][0] / 25.0, randomDes[0][1] / 41.25])
-=======
-        red_chaser_init_pos = np.array([[-22.0,-38.25],[222.0,-38.25],[-22.0,38.25]])
-        green_escaper_init_pos = np.array([[0.0,0.0],[3.0,-16.0],[5.0,20.0],[-23.0,-13.0],[25.0,41.25]])
-        for i, agent in enumerate(world.agents):
-            #agent.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
-            # TODO This 1 is expected to be changed as tests and experiments
-            agent.state.p_pos = red_chaser_init_pos[i] if i < self.num_adversaries else green_escaper_init_pos[1]
-            agent.state.p_pos = np.array([agent.state.p_pos[0] / 25.0, agent.state.p_pos[1] / 41.25])
->>>>>>> c56565de1aa9fd83b3c259acc136e19d7e2e7991
->>>>>>> 1ffe18ca984b3987eb9dc6783b396920e639ef94
             agent.state.p_vel = np.zeros(world.dim_p)
             agent.state.c = np.zeros(world.dim_c)
         for i, lawns in enumerate(world.lawns):
             lawns.state.p_pos = np.random.uniform(-0.9, +0.9, world.dim_p)
             lawns.state.p_vel = np.zeros(world.dim_p)
-        for i, food in enumerate(world.food):
-            #food.state.p_pos = np.random.uniform(-0.9, +0.9, world.dim_p)
-            food.state.p_pos = ksu.food_pos[i]
-            food.state.p_vel = np.zeros(world.dim_p)
 
 
     def benchmark_data(self, agent, world):
         if agent.adversary:
             collisions = 0
             for a in self.good_agents(world):
-                if self.is_collision(a, agent):
+                if self.is_collision(a, agent, 1.0):
                     collisions += 1
             return collisions
         else:
@@ -194,27 +177,27 @@ class Scenario(BaseScenario):
 
 
     def getCircle(self, p1, p2, p3):
-                    x21 = p2[0] - p1[0]
-                    y21 = p2[1] - p1[1]
-                    x32 = p3[0] - p2[0]
-                    y32 = p3[1] - p2[1]
-                    # three colinear
-                    if (x21 * y32 - x32 * y21 == 0):
-                        return None
-                    xy21 = p2[0] * p2[0] - p1[0] * p1[0] + p2[1] * p2[1] - p1[1] * p1[1]
-                    xy32 = p3[0] * p3[0] - p2[0] * p2[0] + p3[1] * p3[1] - p2[1] * p2[1]
-                    y0 = (x32 * xy21 - x21 * xy32) / (2 * (y21 * x32 - y32 * x21))
-                    x0 = (xy21 - 2 * y0 * y21) / (2.0 * x21)
-                    R = ((p1[0] - x0) ** 2 + (p1[1] - y0) ** 2) ** 0.5
-                    return x0, y0, R
+        x21 = p2[0] - p1[0]
+        y21 = p2[1] - p1[1]
+        x32 = p3[0] - p2[0]
+        y32 = p3[1] - p2[1]
+        # three colinear
+        if (x21 * y32 - x32 * y21 == 0):
+            return None
+        xy21 = p2[0] * p2[0] - p1[0] * p1[0] + p2[1] * p2[1] - p1[1] * p1[1]
+        xy32 = p3[0] * p3[0] - p2[0] * p2[0] + p3[1] * p3[1] - p2[1] * p2[1]
+        y0 = (x32 * xy21 - x21 * xy32) / (2 * (y21 * x32 - y32 * x21))
+        x0 = (xy21 - 2 * y0 * y21) / (2.0 * x21)
+        R = ((p1[0] - x0) ** 2 + (p1[1] - y0) ** 2) ** 0.5
+        return x0, y0, R
 
 
-    def is_collision(self, agent1, agent2):
+    def is_collision(self, agent1, agent2, safe_dis = 0.0):
         delta_pos = agent1.state.p_pos - agent2.state.p_pos
         dist = np.sqrt(np.sum(np.square(delta_pos)))
         # TODO dist_min may need modification due to real robots in gazebo
-        dist_min = agent1.size + agent2.size + 2.0 / 25.0
-        return True if dist < dist_min else False
+        dist_min = agent1.size + agent2.size + safe_dis / 25.0
+        return dist < dist_min
 
 
     # return all agents that are not adversaries
@@ -228,16 +211,30 @@ class Scenario(BaseScenario):
 
     def reward(self, agent, world):
         # Agents are rewarded based on minimum agent distance to each landmark
-        #boundary_reward = -10 if self.outside_boundary(agent) else 0
+        boundary_reward = -30 if self.outside_boundary(agent) else 0
         main_reward = self.adversary_reward(agent, world) if agent.adversary else self.agent_reward(agent, world)
-        return main_reward
+        # Manully tuned for building areas
+        #print(entity_a.name, entity_b.name)
+        obs_avoid_reward = -30 if (agent.ugv and self.in_range(agent, [0,1,2,3])) or (not agent.ugv and self.in_range(agent, [2])) else 0
+        return main_reward + boundary_reward + obs_avoid_reward
 
     # The boundary of screen
     def outside_boundary(self, agent):
-        if agent.state.p_pos[0] > 1 or agent.state.p_pos[0] < -1 or agent.state.p_pos[1] > 1 or agent.state.p_pos[1] < -1:
-            return True
-        else:
-            return False
+        return agent.state.p_pos[0] > 1 or agent.state.p_pos[0] < -1 or agent.state.p_pos[1] > 1 or agent.state.p_pos[1] < -10.0/41.25
+
+    # is it in a building where it shouldn't be?
+    def in_range(self, agent, range_id):
+        range = [[[-25.0,-14.0],[-10.0,29.0]],
+                    [[-14.0,0.0],[15.0,29.0]],
+                    [[-4.0,4.0],[-6,0,6.0]],
+                    [[4.0,15.0],[-6.0,18.0]]]
+        x = agent.state.p_pos[0] * 25.0
+        y = agent.state.p_pos[1] * 41.25
+        for i in range_id:
+            if x > range[i][0][0] and x < range[i][0][1] and \
+                    y > range[i][1][0] and y < range[i][1][1]:
+                return True
+        return False
 
 
     def agent_reward(self, agent, world):
@@ -247,26 +244,18 @@ class Scenario(BaseScenario):
         adversaries = self.adversaries(world)
         if shape:
             for adv in adversaries:
-                rew += 0.1 * np.sqrt(np.sum(np.square(agent.state.p_pos - adv.state.p_pos))) # The further, the better
+                rew += 0.5 * np.sqrt(np.sum(np.square(agent.state.p_pos - adv.state.p_pos))) # The further, the better
         if agent.collide:
+            i = 0
             for a in adversaries:
                 # Penalty for being caught
-                if self.is_collision(a, agent):
-                    print("Caught :-(")
-                    rew -= 5
-                    #print("Caught(good) :-(")
-        '''
-        def bound(x):
-            if x < 0.9:
-                return 0
-            if x < 1.0:
-                return (x - 0.9) * 10
-            return min(np.exp(2 * x - 2), 10)  # 1 + (x - 1) * (x - 1)
-
-        for p in range(world.dim_p):
-            x = abs(agent.state.p_pos[p])
-            rew -= 2 * bound(x)
-<<<<<<< HEAD
+                if self.is_collision(a, agent, 1.0):
+                    i += 1
+            if i == self.num_cooperator:
+                rew -= 20
+                #print("Caught(good) :-(")
+            else:
+                rew -= 5 * abs(self.num_cooperator - i)
         '''
         assert world.dim_p == 2
         x = agent.state.p_pos[0]
@@ -279,17 +268,14 @@ class Scenario(BaseScenario):
             rew -= np.exp(10 * (abs(y) - 1.0))
         elif y < -10.0 / 41.25:
             rew -= np.exp(10 * (abs(y) - 10.0 / 41.25))
-=======
             #if not bound(x) == 0:
                 #print("bound")
->>>>>>> c56565de1aa9fd83b3c259acc136e19d7e2e7991
-
+        '''
         for food in world.food:
             if self.is_collision(agent, food):
-                rew += 2
-                print("food")
-        rew += 0.05 * min([np.sqrt(np.sum(np.square(food.state.p_pos - agent.state.p_pos))) for food in world.food])
-
+                rew += 1
+                #print("food")
+        rew += 0.1 * min([np.sqrt(np.sum(np.square(food.state.p_pos - agent.state.p_pos))) for food in world.food])
         return rew
 
     def adversary_reward(self, agent, world):
@@ -299,13 +285,18 @@ class Scenario(BaseScenario):
         agents = self.good_agents(world)
         adversaries = self.adversaries(world)
         if shape:
-            rew -= 0.1 * min([np.sqrt(np.sum(np.square(a.state.p_pos - agent.state.p_pos))) for a in agents]) # The further the worse
+            rew -= 1.0 * min([np.sqrt(np.sum(np.square(a.state.p_pos - agent.state.p_pos))) for a in agents]) # The further the worse
         if agent.collide:
             for ag in agents:
+                i = 0
                 for adv in adversaries:
-                    if self.is_collision(ag, adv):
-                        rew += 5
-                        #print("Caught(adv) :-)")
+                    if self.is_collision(ag, adv, 1.0):
+                        i += 1
+                if i == self.num_cooperator:
+                    rew += 20
+                    #print("Caught(adv) :-)")
+                else:
+                    rew += 2 * abs(self.num_cooperator - i)
         return rew
 
     # Observation settings below is very important!! Keep in mind!! Need more modifications!!
@@ -353,19 +344,21 @@ class Scenario(BaseScenario):
                             center_y += coor[i][1]
                         p_pos = np.array([center_x / 4.0 / 25.0, center_y / 4.0 / 41.25])
                     elif len(coor) == 3:
+                    # Triangle center
                         center_x, center_y, _ = self.getCircle(coor[0], coor[1], coor[2])
                         p_pos = np.array([center_x / 25.0, center_y / 41.25])
                     entity_pos.append(p_pos - agent.state.p_pos)
                 else:
                     entity_pos.append(entity.state.p_pos - agent.state.p_pos)
+
         # Self in forest detection
         in_forest = [np.array([-1]), np.array([-1])]
         inf1 = False
         inf2 = False
-        if self.is_collision(agent, world.forests[0]):
+        if agent.ugv and self.is_collision(agent, world.forests[0]):
             in_forest[0] = np.array([1])
             inf1= True
-        if self.is_collision(agent, world.forests[1]):
+        if agent.ugv and self.is_collision(agent, world.forests[1]):
             in_forest[1] = np.array([1])
             inf2 = True
 
@@ -373,6 +366,7 @@ class Scenario(BaseScenario):
         for entity in world.food:
             if not entity.boundary:
                 food_pos.append(entity.state.p_pos - agent.state.p_pos)
+
         # communication of all other agents
         comm = []   
         other_pos = []
@@ -384,7 +378,7 @@ class Scenario(BaseScenario):
             oth_f2 = self.is_collision(other, world.forests[1])
             ## Settings about same forest vision block
             ## should be in the same forest or both not in the forest or is the leader itself than can have the vision
-            if (inf1 and oth_f1) or (inf2 and oth_f2) or (not inf1 and not oth_f1 and not inf2 and not oth_f2) or agent.leader:  #without forest vis
+            if (inf1 and oth_f1) or (inf2 and oth_f2) or (not inf1 and not oth_f1 and not inf2 and not oth_f2):# or agent.leader:
                 other_pos.append(np.array(other.state.p_pos) - agent.state.p_pos)
                 if not other.adversary:
                     other_vel.append(other.state.p_vel)
@@ -401,6 +395,7 @@ class Scenario(BaseScenario):
                 prey_forest.append(np.array([1]))
             else:
                 prey_forest.append(np.array([-1]))
+
         # to tell leader when pred are in forest
         prey_forest_lead = []
         for f in world.forests:
@@ -410,11 +405,12 @@ class Scenario(BaseScenario):
                 prey_forest_lead.append(np.array([-1]))
 
         comm = [world.agents[0].state.c]
+        #print(comm)
 
-        if agent.adversary and not agent.leader:
+        if agent.adversary:# and not agent.leader:
             return np.concatenate([agent.state.p_vel] + [agent.state.p_pos] + entity_pos + other_pos + other_vel + in_forest + comm)
-        if agent.leader:
-            return np.concatenate(
-                [agent.state.p_vel] + [agent.state.p_pos] + entity_pos + other_pos + other_vel + in_forest + comm)
+        #if agent.leader: # and is agent.adversary
+        #    return np.concatenate([agent.state.p_vel] + [agent.state.p_pos] + entity_pos + other_pos + other_vel + in_forest + comm)
         else:
-            return np.concatenate([agent.state.p_vel] + [agent.state.p_pos] + entity_pos + other_pos + in_forest + other_vel)
+            # only good agents themselves know their sweet points(food); their are not communicated with adveraries
+            return np.concatenate([agent.state.p_vel] + [agent.state.p_pos] + entity_pos + other_pos + other_vel + in_forest + food_pos) # change for good agent who will chase food at the same time
