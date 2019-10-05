@@ -313,6 +313,8 @@ class Image(Geom):
         self.width = width
         self.height = height
         img = pyglet.image.load(fname) # img = pyglet.resource.image(fname)
+        #img_data = img.get_image_data()
+        #print(img_data.get_data('RGB',img_data.width*3)
         self.img = img
         self.flip = False
     def render1(self):

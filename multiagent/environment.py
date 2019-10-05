@@ -256,21 +256,22 @@ class MultiAgentEnv(gym.Env):
                 if 'agent' in entity.name:
                     if entity.ugv:
                         coorScaledList = []
-                        t = (entity.state.p_pos[0] - entity.size / 2, entity.state.p_pos[1] + entity.size / 2)
+                        t = (-entity.size, +entity.size)
                         coorScaledList.append(t)
-                        t = (entity.state.p_pos[0] + entity.size / 2, entity.state.p_pos[1] + entity.size / 2)
+                        t = (+entity.size, +entity.size)
                         coorScaledList.append(t)
-                        t = (entity.state.p_pos[0] - entity.size / 2, entity.state.p_pos[1] - entity.size / 2)
+                        t = (+entity.size, -entity.size)
                         coorScaledList.append(t)
-                        t = (entity.state.p_pos[0] + entity.size / 2, entity.state.p_pos[1] - entity.size / 2)
+                        t = (-entity.size, -entity.size)
                         coorScaledList.append(t)
                         geom = rendering.make_polygon(coorScaledList)
                     else:
                         geom = rendering.make_circle(entity.size)
-                    geom.set_color(*entity.color, alpha=0.5)
                     xform = rendering.Transform()
                     geom.add_attr(xform)
                     self.render_geoms_xform.append(xform)
+                    geom.set_color(*entity.color, alpha=0.5)
+                    self.render_geoms.append(geom)
                 elif 'food' in entity.name:
                     geom = rendering.make_circle(entity.size)
                     geom.set_color(*entity.color)
@@ -328,7 +329,21 @@ class MultiAgentEnv(gym.Env):
         return results
 
 
-    def render_real(self, mode='human'):
+    def render_new(self, mode='human'):
+        if mode == 'human':
+            alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+            message = ''
+            for agent in self.world.agents:
+                comm = []
+                for other in self.world.agents:
+                    if other is agent: continue
+                    if np.all(other.state.c == 0):
+                        word = '_'
+                    else:
+                        word = alphabet[np.argmax(other.state.c)]
+                    message += (other.name + ' to ' + agent.name + ': ' + word + '   ')
+            #print(message + '\n')
+
         for i in range(len(self.viewers)):
             # create viewers (if necessary)
             if self.viewers[i] is None:
@@ -355,20 +370,20 @@ class MultiAgentEnv(gym.Env):
                 if 'agent' in entity.name:
                     if entity.ugv:
                         coorScaledList = []
-                        t = (entity.state.p_pos[0] - entity.size / 2, entity.state.p_pos[1] + entity.size / 2)
+                        t = (-entity.size, +entity.size)
                         coorScaledList.append(t)
-                        t = (entity.state.p_pos[0] + entity.size / 2, entity.state.p_pos[1] + entity.size / 2)
+                        t = (+entity.size, +entity.size)
                         coorScaledList.append(t)
-                        t = (entity.state.p_pos[0] + entity.size / 2, entity.state.p_pos[1] - entity.size / 2)
+                        t = (+entity.size, -entity.size)
                         coorScaledList.append(t)
-                        t = (entity.state.p_pos[0] - entity.size / 2, entity.state.p_pos[1] - entity.size / 2)
+                        t = (-entity.size, -entity.size)
                         coorScaledList.append(t)
                         geom = rendering.make_polygon(coorScaledList)
                     else:
                         geom = rendering.make_circle(entity.size)
-                        xform = rendering.Transform()
-                        geom.add_attr(xform)
-                        self.render_geoms_xform.append(xform)
+                    xform = rendering.Transform()
+                    geom.add_attr(xform)
+                    self.render_geoms_xform.append(xform)
                     geom.set_color(*entity.color, alpha=0.5)
                     self.render_geoms.append(geom)
                 elif 'food' in entity.name:
@@ -389,22 +404,17 @@ class MultiAgentEnv(gym.Env):
         for i in range(len(self.viewers)):
             from multiagent import rendering
             # update bounds to center around agent
-            # TODO 50:82.5 = 1:1.65 ?
             can_range = 1
-            #cam_range_w = 1
-            #cam_range_h = 1.65
             if self.shared_viewer: # True
                 pos = np.zeros(self.world.dim_p)
             else:
                 pos = self.agents[i].state.p_pos
-            # TODO set_bounds function: self.viewers[i].set_bounds(pos[0]-cam_range_w,pos[0]+cam_range_w,pos[1]-cam_range_h,pos[1]+cam_range_h)
             #self.viewers[i].set_bounds(1000-can_range,1000+can_range,150-can_range,150+can_range)
             self.viewers[i].set_bounds(pos[0]-can_range,pos[0]+can_range,pos[1]-can_range,pos[1]+can_range)
             # update geometry positions every episode
             # don't want this in KSU map to change building, forest and food every time, so I changed entities to agents
             for e, entity in enumerate(self.world.agents):
-                if not entity.ugv:
-                    self.render_geoms_xform[e].set_translation(*entity.state.p_pos)
+                self.render_geoms_xform[e].set_translation(*entity.state.p_pos)
             # render to display or array
             results.append(self.viewers[i].render(return_rgb_array = mode=='rgb_array'))
 

@@ -168,7 +168,7 @@ def train(arglist):
             # for displaying learned policies
             if arglist.display:
                 time.sleep(0.1)
-                env.render_real()
+                env.render()
                 continue
             
             # update all trainers, if not in display or benchmark mode
