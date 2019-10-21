@@ -46,8 +46,8 @@ class Scenario(BaseScenario):
             agent.size = 0.98 / 2 / 25.0 # 0.045 if agent.adversary else 0.025
             agent.accel = 2.0 if agent.adversary else 4.0
             #agent.accel = 20.0 if agent.adversary else 25.0
-            agent.max_speed = 0.4 if agent.ugv else 0.8
-            agent.max_speed += 1.0 if not agent.adversary else 0
+            agent.max_speed = 0.3 if agent.ugv else 0.8
+            agent.max_speed += 0.4 if not agent.adversary else 0
             agent.initial_mass = 1.0 if agent.ugv else 0.7
 
         # add landmarks
@@ -281,6 +281,7 @@ class Scenario(BaseScenario):
     def adversary_reward(self, agent, world):
         # Adversary agents are rewarded based on minimum agent distance to each good agent(Shape:true)
         rew = 0
+        succ = 0
         shape = True
         agents = self.good_agents(world)
         adversaries = self.adversaries(world)
@@ -292,11 +293,24 @@ class Scenario(BaseScenario):
                 for adv in adversaries:
                     if self.is_collision(ag, adv, 1.0):
                         i += 1
-                if i == self.num_cooperator:
+                if i: #print(i)
+                #if i >= self.num_cooperator: # 貌似太为苛刻
                     rew += 20
-                    #print("Caught(adv) :-)")
+                    succ += 1
                 else:
                     rew += 2 * abs(self.num_cooperator - i)
+
+        # Calculate success rate(precision)
+        '''
+        if "0" in agent.name and succ:
+            fr = open("/home/crai/results/metrics/succ_rate.txt","r")
+            old_succ = fr.readline()
+            fr.close()
+            fw = open("/home/crai/results/metrics/succ_rate.txt","w")
+            fw.write(str(int(old_succ.strip('\n'))+succ))
+            fw.close()
+        '''
+
         return rew
 
     # Observation settings below is very important!! Keep in mind!! Need more modifications!!
@@ -386,6 +400,17 @@ class Scenario(BaseScenario):
                 other_pos.append([0, 0])
                 if not other.adversary:
                     other_vel.append([0, 0])
+            
+            # for performance evaluation
+            '''
+            if not other.adversary and agent.adversary:
+                delta_pos = other.state.p_pos - agent.state.p_pos
+                #dist = np.sqrt(np.sum(np.square(delta_pos)))
+                dist = np.sqrt(np.square(delta_pos[0])+np.square(delta_pos[1] / 1.65))
+                fw = open("/home/crai/results/metrics/dists.log","a+")
+                fw.write(str(dist)+",")
+                fw.close()
+            '''
 
         # to tell the pred when the prey are in the forest
         prey_forest = []

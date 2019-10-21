@@ -15,14 +15,18 @@ t_eastern= utc_now.astimezone(pytz.timezone("America/New_York"))
 t_now_format = str(t_eastern.month) + '-' + str(t_eastern.day) + '-' + str(t_eastern.hour) + '-' + str(t_eastern.minute)
 
 homeuser = "/home/crai/" # /home/yijiang/
+filename = "results/trajectory/trajectory"#"results/metrics/succ_rate"
+fw = open(homeuser+filename+".txt","w+")
+#fw.write('0')
+fw.close()
 
 def parse_args():
     parser = argparse.ArgumentParser("Reinforcement Learning experiments for multiagent environments")
     # Environment
     parser.add_argument("--scenario", type=str, default="simple_world_comm", help="name of the scenario script")
-    parser.add_argument("--max-episode-len", type=int, default=25, help="maximum episode length")
+    parser.add_argument("--max-episode-len", type=int, default=50, help="maximum episode length")
     parser.add_argument("--num-episodes", type=int, default=40000, help="number of episodes")
-    parser.add_argument("--num-adversaries", type=int, default=3, help="number of adversaries")# default=0, I changed it to 3 to equals the num_adversaries in Scenario simple_world_comm: 3 vs. 1
+    parser.add_argument("--num-adversaries", type=int, default=3, help="number of adversaries")
     parser.add_argument("--good-policy", type=str, default="maddpg", help="policy for good agents")
     parser.add_argument("--adv-policy", type=str, default="maddpg", help="policy of adversaries")
     # Core training parameters
@@ -149,6 +153,8 @@ def train(arglist):
                 for a in agent_rewards:
                     a.append(0)
                 agent_info.append([[]])
+                if train_step > arglist.max_episode_len * 100:
+                    break
 
             # increment global step counter
             train_step += 1

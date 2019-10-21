@@ -117,6 +117,15 @@ class MultiAgentEnv(gym.Env):
         self.agents = self.world.policy_agents
         for agent in self.agents:
             obs_n.append(self._get_obs(agent))
+        
+        # Reset output trajectory
+        fw = open("/home/crai/results/trajectory/trajectory.txt","a")
+        fw.write("200,200")
+        for _ in range(1,self.n):
+            fw.write(",200,200")
+        fw.write("\n")
+        fw.close()
+
         return obs_n
 
     # get info used for benchmarking

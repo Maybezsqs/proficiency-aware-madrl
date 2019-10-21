@@ -168,8 +168,13 @@ class World(object):
 
     # integrate physical state
     def integrate_state(self, p_force): # It is this function that actually changes the state(the position)
+        j = 0
+        
+        fw = open("/home/crai/results/trajectory/trajectory.txt","a")
+        
         for i,entity in enumerate(self.entities):
             if not entity.movable: continue
+            j += 1
             # Only for agents
             entity.state.p_vel = entity.state.p_vel * (1 - self.damping)
             if (p_force[i] is not None):
@@ -181,6 +186,13 @@ class World(object):
             entity.state.p_vel[1] /= 1.65 # TODO scaling set_bounds in environment.py
             entity.state.p_pos += entity.state.p_vel * self.dt
 
+            # output trajectory
+            fw.write(str(entity.state.p_pos[0]*25.0)+","+str(entity.state.p_pos[1]*41.25))
+            if j < len(self.agents):
+                fw.write(",")
+            else:
+                fw.write("\n")
+                fw.close()
 
     def update_agent_state(self, agent):
         # set communication state (directly for now)
