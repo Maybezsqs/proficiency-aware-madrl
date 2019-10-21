@@ -15,9 +15,9 @@ t_eastern= utc_now.astimezone(pytz.timezone("America/New_York"))
 t_now_format = str(t_eastern.month) + '-' + str(t_eastern.day) + '-' + str(t_eastern.hour) + '-' + str(t_eastern.minute)
 
 homeuser = "/home/crai/" # /home/yijiang/
-filename = "results/trajectory/trajectory"#"results/metrics/succ_rate"
+filename = "results/metrics/succ_rate" #"results/trajectory/trajectory"
 fw = open(homeuser+filename+".txt","w+")
-#fw.write('0')
+fw.write('0')
 fw.close()
 
 def parse_args():

@@ -301,7 +301,6 @@ class Scenario(BaseScenario):
                     rew += 2 * abs(self.num_cooperator - i)
 
         # Calculate success rate(precision)
-        '''
         if "0" in agent.name and succ:
             fr = open("/home/crai/results/metrics/succ_rate.txt","r")
             old_succ = fr.readline()
@@ -309,7 +308,6 @@ class Scenario(BaseScenario):
             fw = open("/home/crai/results/metrics/succ_rate.txt","w")
             fw.write(str(int(old_succ.strip('\n'))+succ))
             fw.close()
-        '''
 
         return rew
 
