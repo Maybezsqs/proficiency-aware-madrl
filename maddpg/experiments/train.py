@@ -1,3 +1,7 @@
+
+# 和gazebo交互的问题
+# UAV1 单位时间内位移距离最好不要超过1.8，而UAV2因为是六旋翼，比较稳定，所以可以
+
 import argparse
 import numpy as np
 import tensorflow as tf
@@ -14,19 +18,26 @@ utc_now = pytz.utc.localize(datetime.datetime.utcnow())
 t_eastern= utc_now.astimezone(pytz.timezone("America/New_York"))
 t_now_format = str(t_eastern.month) + '-' + str(t_eastern.day) + '-' + str(t_eastern.hour) + '-' + str(t_eastern.minute)
 
-homeuser = "/home/crai/" # /home/yijiang/
+import visdom
+vis = visdom.Visdom(port=5274)
+win = None
+
+homeuser = "/home/yijiang/" # /home/crai/
+'''
 filename = "results/metrics/succ_rate_maddpg" #"results/trajectory/trajectory"
 fw = open(homeuser+filename+".txt","w+")
 fw.write('0')
 fw.close()
+'''
 
 def parse_args():
     parser = argparse.ArgumentParser("Reinforcement Learning experiments for multiagent environments")
     # Environment
-    parser.add_argument("--scenario", type=str, default="simple_world_comm", help="name of the scenario script")
+    parser.add_argument("--scenario", type=str, default="simple_world_comm", help="name of the scenario script") # or simple_world_comm
     parser.add_argument("--max-episode-len", type=int, default=50, help="maximum episode length")
-    parser.add_argument("--num-episodes", type=int, default=40000, help="number of episodes")
+    parser.add_argument("--num-episodes", type=int, default=30000, help="number of episodes")
     parser.add_argument("--num-adversaries", type=int, default=3, help="number of adversaries")
+    parser.add_argument("--num-targets", type=int, default=3, help="number of static targets(food) for criminals")
     parser.add_argument("--good-policy", type=str, default="maddpg", help="policy for good agents")
     parser.add_argument("--adv-policy", type=str, default="maddpg", help="policy of adversaries")
     # Core training parameters
@@ -35,9 +46,10 @@ def parse_args():
     parser.add_argument("--batch-size", type=int, default=1024, help="number of episodes to optimize at the same time")
     parser.add_argument("--num-units", type=int, default=64, help="number of units in the mlp")
     # Checkpointing
-    parser.add_argument("--exp-name", type=str, default="swc", help="name of the experiment")
+    parser.add_argument("--exp-name", type=str, default="defaultname", help="name of the experiment")
     parser.add_argument("--save-dir", type=str, default=homeuser+"results/", help="directory in which training state and model should be saved")
-    parser.add_argument("--save-rate", type=int, default=5000, help="save model once every time this many episodes are completed")
+    parser.add_argument("--save-rate", type=int, default=6000, help="save model once every time this many episodes are completed")
+    parser.add_argument("--draw-reward-rate", type=int, default=50, help="for good learning curve drawing, this will save the results more frequently")
     parser.add_argument("--load-dir", type=str, default="", help="directory in which training state and model are loaded")
     # Evaluation
     parser.add_argument("--restore", action="store_true", default=False)
@@ -133,6 +145,7 @@ def train(arglist):
             action_n = [agent.action(obs) for agent, obs in zip(trainers,obs_n)] # obs_n: 4x62(first) then 4x56; 4 because of 4 agents(trainers) in total
             # environment step: Execute actions a = (a1; : : : ; aN) and observe reward r and new state x0
             new_obs_n, rew_n, done_n, info_n = env.step(action_n)
+            i_episode = len(episode_rewards)
             episode_step += 1
             done = all(done_n)
             terminal = (episode_step >= arglist.max_episode_len)
@@ -153,8 +166,11 @@ def train(arglist):
                 for a in agent_rewards:
                     a.append(0)
                 agent_info.append([[]])
+                # for computing performanc metrics
+                '''
                 if train_step > arglist.max_episode_len * 100:
                     break
+                '''
 
             # increment global step counter
             train_step += 1
@@ -173,8 +189,8 @@ def train(arglist):
 
             # for displaying learned policies
             if arglist.display:
-                #time.sleep(0.1)
-                #env.render()
+                time.sleep(0.1)
+                env.render()
                 continue
             
             # update all trainers, if not in display or benchmark mode
@@ -185,19 +201,46 @@ def train(arglist):
                 loss = agent.update(trainers, train_step)
 
             # save model, display training output
-            if terminal and (len(episode_rewards) % arglist.save_rate == 0):
+            if terminal and (i_episode % arglist.save_rate == 0):
                 U.save_state(arglist.save_dir + arglist.exp_name + '-' + t_now_format, saver=saver, global_step=train_step)
                 # print statement depends on whether or not there are adversaries
                 if num_adversaries == 0:
                     print("steps: {}, episodes: {}, mean episode reward: {}, time: {}".format(
-                        train_step, len(episode_rewards), np.mean(episode_rewards[-arglist.save_rate:]), round(time.time()-t_start, 3)))
+                        train_step, i_episode, np.mean(episode_rewards[-arglist.save_rate:]), round(time.time()-t_start, 3)))
                 else:
                     print("steps: {}, episodes: {}, mean episode reward: {}, agent episode reward: {}, time: {}".format(
-                        train_step, len(episode_rewards), np.mean(episode_rewards[-arglist.save_rate:]),
+                        train_step, i_episode, np.mean(episode_rewards[-arglist.save_rate:]),
                         [np.mean(rew[-arglist.save_rate:]) for rew in agent_rewards], round(time.time()-t_start, 3)))
                 t_start = time.time()
                 # Keep track of final episode reward
+                '''
                 final_ep_rewards.append(np.mean(episode_rewards[-arglist.save_rate:]))
+                for rew in agent_rewards:
+                    final_ep_ag_rewards.append(np.mean(rew[-arglist.save_rate:]))
+                '''
+            # Keep track of final episode reward more frequently for drawing learning curve
+            if i_episode % arglist.draw_reward_rate == 0:
+                final_ep_rewards.append(np.mean(episode_rewards[-arglist.save_rate:]))
+                '''
+                # on-line plotting learning curve
+                mean_episode_reward = np.mean(episode_rewards[-arglist.draw_reward_rate:])
+                if win is None:
+                    win = vis.line(X=np.arange(i_episode, i_episode+1),
+                                    Y=np.array([
+                                    np.append(mean_episode_reward, rr)]),
+                                    opts=dict(
+                                        ylabel='Mean Episode Reward',
+                                        xlabel='Episode',
+                                        title='Proficiency-Aware MAAC in KSU_World\n' +
+                                        '%d police, %d criminal, 2 cooperator, %d target, \n' % 
+                                            (num_adversaries, env.n - num_adversaries, arglist.num_targets),
+                                        legend=['Total'] + ['Robot-%d' % i for i in range(env.n)]))
+                else:
+                    vis.line(X=np.array([np.array(i_episode).repeat(env.n+1)]),
+                                Y=np.array([np.append(mean_episode_reward, rr)]),
+                                win=win,
+                                update='append')
+                '''
                 for rew in agent_rewards:
                     final_ep_ag_rewards.append(np.mean(rew[-arglist.save_rate:]))
 

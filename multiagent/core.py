@@ -102,7 +102,7 @@ class World(object):
         # contact response parameters
         self.contact_force = 1e+2
         self.contact_margin = 1e-3
-        
+
         # for KSU map coordinations
         self.building_coordinations = []
         self.lawn_coordinations = []

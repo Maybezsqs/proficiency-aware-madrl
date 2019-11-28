@@ -191,7 +191,7 @@ class MultiAgentEnv(gym.Env):
                     agent.action.u[1] += action[0][3] - action[0][4]
                 else:
                     agent.action.u = action[0]
-            sensitivity = 5.0
+            sensitivity = 1.1 # 5.0
             if agent.accel is not None: # True
                 sensitivity = agent.accel
             agent.action.u *= sensitivity
@@ -228,7 +228,7 @@ class MultiAgentEnv(gym.Env):
                     else:
                         word = alphabet[np.argmax(other.state.c)]
                     message += (other.name + ' to ' + agent.name + ': ' + word + '   ')
-            #print(message + '\n')
+            print(message + '\n')
 
         for i in range(len(self.viewers)):
             # create viewers (if necessary)

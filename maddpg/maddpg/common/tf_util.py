@@ -235,7 +235,7 @@ def save_state(fname, saver=None, global_step=None):
     """Save all the variables in the current session to the location <fname>"""
     os.makedirs(os.path.dirname(fname), exist_ok=True)
     if saver is None:
-        saver = tf.train.Saver()
+        saver = tf.train.Saver(max_to_keep=None)
     saver.save(get_session(), fname, global_step)
     return saver
 
