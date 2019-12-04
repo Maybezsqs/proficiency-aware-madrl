@@ -22,7 +22,7 @@ import visdom
 vis = visdom.Visdom(port=5274)
 win = None
 
-homeuser = "/home/yijiang/" # /home/crai/
+homeuser = "/home/crai/" # /home/yijiang/
 '''
 filename = "results/metrics/succ_rate_maddpg" #"results/trajectory/trajectory"
 fw = open(homeuser+filename+".txt","w+")
@@ -35,7 +35,7 @@ def parse_args():
     # Environment
     parser.add_argument("--scenario", type=str, default="simple_world_comm", help="name of the scenario script") # or simple_world_comm
     parser.add_argument("--max-episode-len", type=int, default=50, help="maximum episode length")
-    parser.add_argument("--num-episodes", type=int, default=30000, help="number of episodes")
+    parser.add_argument("--num-episodes", type=int, default=35000, help="number of episodes")
     parser.add_argument("--num-adversaries", type=int, default=3, help="number of adversaries")
     parser.add_argument("--num-targets", type=int, default=3, help="number of static targets(food) for criminals")
     parser.add_argument("--good-policy", type=str, default="maddpg", help="policy for good agents")
@@ -48,8 +48,8 @@ def parse_args():
     # Checkpointing
     parser.add_argument("--exp-name", type=str, default="defaultname", help="name of the experiment")
     parser.add_argument("--save-dir", type=str, default=homeuser+"results/", help="directory in which training state and model should be saved")
-    parser.add_argument("--save-rate", type=int, default=6000, help="save model once every time this many episodes are completed")
-    parser.add_argument("--draw-reward-rate", type=int, default=50, help="for good learning curve drawing, this will save the results more frequently")
+    parser.add_argument("--save-rate", type=int, default=1000, help="save model once every time this many episodes are completed")
+    parser.add_argument("--draw-reward-rate", type=int, default=100, help="for good learning curve drawing, this will save the results more frequently")
     parser.add_argument("--load-dir", type=str, default="", help="directory in which training state and model are loaded")
     # Evaluation
     parser.add_argument("--restore", action="store_true", default=False)
