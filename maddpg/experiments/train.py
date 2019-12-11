@@ -51,7 +51,7 @@ def parse_args():
     parser.add_argument("--exp-name", type=str, default="defaultname", help="name of the experiment")
     parser.add_argument("--save-dir", type=str, default=homeuser+"results/", help="directory in which training state and model should be saved")
     parser.add_argument("--save-rate", type=int, default=1000, help="save model once every time this many episodes are completed")
-    parser.add_argument("--draw-reward-rate", type=int, default=100, help="for good learning curve drawing, this will save the results more frequently")
+    parser.add_argument("--draw-reward-rate", type=int, default=200, help="for good learning curve drawing, this will save the results more frequently")
     parser.add_argument("--load-dir", type=str, default="", help="directory in which training state and model are loaded")
     # Evaluation
     parser.add_argument("--restore", action="store_true", default=False)
@@ -221,8 +221,8 @@ def train(arglist):
                     final_ep_ag_rewards.append(np.mean(rew[-arglist.save_rate:]))
                 '''
             # Keep track of final episode reward more frequently for drawing learning curve
-            if i_episode % arglist.draw_reward_rate == 0:
-                final_ep_rewards.append(np.mean(episode_rewards[-arglist.save_rate:]))
+            if terminal and i_episode % arglist.draw_reward_rate == 0:
+                final_ep_rewards.append(np.mean(episode_rewards[-arglist.draw_reward_rate:]))
                 '''
                 # on-line plotting learning curve
                 mean_episode_reward = np.mean(episode_rewards[-arglist.draw_reward_rate:])
@@ -244,7 +244,7 @@ def train(arglist):
                                 update='append')
                 '''
                 for rew in agent_rewards:
-                    final_ep_ag_rewards.append(np.mean(rew[-arglist.save_rate:]))
+                    final_ep_ag_rewards.append(np.mean(rew[-arglist.draw_reward_rate:]))
 
             # saves final episode reward for plotting training curve later
             if len(episode_rewards) > arglist.num_episodes:

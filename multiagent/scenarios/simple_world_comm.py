@@ -163,7 +163,7 @@ class Scenario(BaseScenario):
                 secure_random = random.SystemRandom()
                 escaper_x = secure_random.uniform(randomInit[0][0][0],randomInit[0][0][1])
                 escaper_y = secure_random.uniform(randomInit[0][1][0],randomInit[0][1][1])
-                agent.state.p_pos = np.array([escaper_x, escaper_y])
+                agent.state.p_pos = np.array([escaper_x / 25.0, escaper_y / 41.25])
             agent.state.p_vel = np.zeros(world.dim_p)
             agent.state.c = np.zeros(world.dim_c)
         for i, lawns in enumerate(world.lawns):
