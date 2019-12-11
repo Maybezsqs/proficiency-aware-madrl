@@ -18,9 +18,11 @@ utc_now = pytz.utc.localize(datetime.datetime.utcnow())
 t_eastern= utc_now.astimezone(pytz.timezone("America/New_York"))
 t_now_format = str(t_eastern.month) + '-' + str(t_eastern.day) + '-' + str(t_eastern.hour) + '-' + str(t_eastern.minute)
 
+'''
 import visdom
 vis = visdom.Visdom(port=5274)
 win = None
+'''
 
 homeuser = "/home/crai/" # /home/yijiang/
 '''
