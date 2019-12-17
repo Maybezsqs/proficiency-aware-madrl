@@ -163,7 +163,7 @@ class Scenario(BaseScenario):
                 secure_random = random.SystemRandom()
                 escaper_x = secure_random.uniform(randomInit[0][0][0],randomInit[0][0][1])
                 escaper_y = secure_random.uniform(randomInit[0][1][0],randomInit[0][1][1])
-                agent.state.p_pos = np.array([escaper_x, escaper_y])
+                agent.state.p_pos = np.array([escaper_x / 25.0, escaper_y / 41.25])
             agent.state.p_vel = np.zeros(world.dim_p)
             agent.state.c = np.zeros(world.dim_c)
         for i, lawns in enumerate(world.lawns):
@@ -462,3 +462,4 @@ class Scenario(BaseScenario):
         else:
             # only good agents themselves know their sweet points(food); their are not communicated with adveraries
             return np.concatenate([agent.state.p_vel] + [agent.state.p_pos] + entity_pos + other_pos + other_vel + in_forest + food_pos) # change for good agent who will chase food at the same time
+
