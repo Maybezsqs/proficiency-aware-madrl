@@ -45,9 +45,9 @@ class Scenario(BaseScenario):
             agent.ugv = False if i < self.num_uav else True
             agent.size = 0.98 / 2 / 25.0 # 0.045 if agent.adversary else 0.025 # Please refer to reality
             #agent.accel = 20.0 if agent.adversary else 25.0
-            agent.accel = 1.0 if agent.adversary else 2.0 # Please refer to reality
-            agent.max_speed = 0.7 if agent.ugv else 1.5 # Please refer to reality
-            agent.max_speed += 0.7 if not agent.adversary else 0 # Please refer to reality
+            agent.accel = 1.1 if agent.adversary else 2.0 # Please refer to reality
+            agent.max_speed = 1 if agent.ugv else 1.7 # Please refer to reality
+            agent.max_speed += 0.5 if not agent.adversary else 0 # Please refer to reality
             agent.initial_mass = 1.0 if agent.ugv else 0.7 # Please refer to reality
 
         # add landmarks
@@ -233,7 +233,7 @@ class Scenario(BaseScenario):
         range = [[[-25.0,-14.0],[-10.0,29.0]],
                     [[-14.0,0.0],[15.0,29.0]],
                     [[-4.0,4.0],[-6,0,6.0]],
-                    [[4.0,15.0],[-6.0,18.0]]] # [[x_min,x_max],[y_min,y_max]]
+                    [[4.0,15.0],[-6.0,18.0]]] # Format: [[x_min,x_max],[y_min,y_max]]
         x = agent.state.p_pos[0] * 25.0
         y = agent.state.p_pos[1] * 41.25
         for i in range_id:
@@ -256,7 +256,7 @@ class Scenario(BaseScenario):
             i = 0
             for a in adversaries:
                 # Penalty for being caught
-                if self.is_collision(a, agent, 3.5):
+                if self.is_collision(a, agent, 1.5): # 3.5
                     i += 1
 
             # too strict
@@ -309,16 +309,17 @@ class Scenario(BaseScenario):
             for ag in agents:
                 i = 0
                 for adv in adversaries:
-                    if self.is_collision(ag, adv, 3.5):
+                    if self.is_collision(ag, adv, 1.5): # 3.5
                         i += 1
 
-                #if i: #print(i)
+                #only count on one police
+                if "0" in agent.name and i: #print(i)
                 # too strict
-                if i == self.num_cooperator:
+                #if i == self.num_cooperator:
                     rew += 50
                     succ += 1
-                else:
-                    rew += 1 * abs(self.num_cooperator - i)
+                #else:
+                #    rew += 1 * abs(self.num_cooperator - i)
 
                 # simplified
                 #rew += 5 * i
@@ -331,8 +332,10 @@ class Scenario(BaseScenario):
             fr.close()
             fw = open("/home/crai/results/metrics/succ_rate_maddpg.txt","w")
             fw.write(str(int(old_succ.strip('\n'))+succ))
+            print(int(old_succ.strip('\n'))+succ)
             fw.close()
         '''
+
         return rew
 
     # Observation settings below is very important!! Keep in mind!! Need more modifications!!
@@ -415,6 +418,7 @@ class Scenario(BaseScenario):
             oth_f2 = self.is_collision(other, world.forests[1])
             ## Settings about same forest vision block
             ## should be in the same forest or both not in the forest or is the leader itself than can have the vision
+            ## UGV has an observation range of 20 meters
             #if (inf1 and oth_f1) or (inf2 and oth_f2) or (not inf1 and not oth_f1 and not inf2 and not oth_f2):# or agent.leader:
             if (agent.ugv and self.is_collision(agent, other, safe_dis=20.0)) or not (agent.ugv or oth_f1 or oth_f2):
                 other_pos.append(np.array(other.state.p_pos) - agent.state.p_pos)
@@ -462,4 +466,3 @@ class Scenario(BaseScenario):
         else:
             # only good agents themselves know their sweet points(food); their are not communicated with adveraries
             return np.concatenate([agent.state.p_vel] + [agent.state.p_pos] + entity_pos + other_pos + other_vel + in_forest + food_pos) # change for good agent who will chase food at the same time
-

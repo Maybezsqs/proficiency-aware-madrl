@@ -503,3 +503,4 @@ class BatchMultiAgentEnv(gym.Env):
             results_n += env.render(mode, close)
 
         return results_n
+
