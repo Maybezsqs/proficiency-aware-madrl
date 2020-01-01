@@ -22,6 +22,12 @@ class Scenario(BaseScenario):
         self.num_cooperator = 2
         num_agents = self.num_adversaries + self.num_good_agents
 
+        # Metrics
+        #self.catch_succ = False
+        #self.food_succ = False
+        self.catch_num = 0
+        self.food_num = 0
+
         world.building_coordinations = ksu.building_coordinations
         world.forest_coordinations = ksu.forest_coordinations
         world.lawn_coordinations = ksu.lawn_coordinations # TODO currently without the lawn of circle shape
@@ -157,19 +163,43 @@ class Scenario(BaseScenario):
                 agent.state.p_pos = np.array([ksu.red_chaser_init_pos[i][0] / 25.0, ksu.red_chaser_init_pos[i][1] / 41.25])
             else:
                 random.seed(time.time() * 10000 / 403.712 - 100)
+                # Finite possible starting positions for criminal
                 #randomInit = random.sample(ksu.green_escaper_init_pos,1)
                 #agent.state.p_pos = np.array([randomInit[0][0] / 25.0, randomInit[0][1] / 41.25])
+
+                # Metrics
+                #agent.state.p_pos = np.array([ksu.init_plaza[0] / 25.0, ksu.init_plaza[1] / 41.25])
+
+                # Completely ramdom starting positions for criminal
+
                 randomInit = random.sample(ksu.escaper_starter_range,1)
                 secure_random = random.SystemRandom()
                 escaper_x = secure_random.uniform(randomInit[0][0][0],randomInit[0][0][1])
                 escaper_y = secure_random.uniform(randomInit[0][1][0],randomInit[0][1][1])
                 agent.state.p_pos = np.array([escaper_x / 25.0, escaper_y / 41.25])
+
             agent.state.p_vel = np.zeros(world.dim_p)
             agent.state.c = np.zeros(world.dim_c)
         for i, lawns in enumerate(world.lawns):
             lawns.state.p_pos = np.random.uniform(-0.9, +0.9, world.dim_p)
             lawns.state.p_vel = np.zeros(world.dim_p)
 
+        # Calculate success rate(precision)
+        '''
+        if self.catch_num > self.food_num:
+            fr = open("/home/crai/results/metrics/succ_rate_maddpg.txt","r")
+            old_succ = fr.readline()
+            fr.close()
+            fw = open("/home/crai/results/metrics/succ_rate_maddpg.txt","w")
+            fw.write(str(int(old_succ.strip('\n'))+self.catch_num-self.food_num))
+            print(int(old_succ.strip('\n'))+self.catch_num-self.food_num)
+            fw.close()
+        '''
+        # Metrics para reset for each episode
+        #self.catch_succ = False
+        #self.food_succ = False
+        self.catch_num = 0
+        self.food_num = 0
 
     def benchmark_data(self, agent, world):
         if agent.adversary:
@@ -217,11 +247,10 @@ class Scenario(BaseScenario):
 
     def reward(self, agent, world):
         # Agents are rewarded based on minimum agent distance to each landmark
-        boundary_reward = -100 if self.outside_boundary(agent) else 0
+        boundary_reward = -80 if self.outside_boundary(agent) else 0
         main_reward = self.adversary_reward(agent, world) if agent.adversary else self.agent_reward(agent, world)
         # Manully tuned for building areas
-        #print(entity_a.name, entity_b.name)
-        obs_avoid_reward = -100 if (agent.ugv and self.in_range(agent, [0,1,2,3])) or (not agent.ugv and self.in_range(agent, [2])) else 0
+        obs_avoid_reward = -90 if (agent.ugv and self.in_range(agent, [0,1,2,3])) or (not agent.ugv and self.in_range(agent, [2])) else 0
         return main_reward + boundary_reward + obs_avoid_reward
 
     # The boundary of screen
@@ -259,15 +288,11 @@ class Scenario(BaseScenario):
                 if self.is_collision(a, agent, 1.5): # 3.5
                     i += 1
 
-            # too strict
-            if i == self.num_cooperator:
+            if i:
+            #if i == self.num_cooperator: # too strict
                 rew -= 50
-                #print("Caught(good) :-(")
-            else:
-                rew -= 1 * abs(self.num_cooperator - i)
-
-            # simplified
-            #rew -= 3 * i
+            #else:
+            #    rew -= 1 * abs(self.num_cooperator - i)
 
         '''
         assert world.dim_p == 2
@@ -282,15 +307,14 @@ class Scenario(BaseScenario):
         elif y < -10.0 / 41.25:
             rew -= np.exp(10 * (abs(y) - 10.0 / 41.25))
             #if not bound(x) == 0:
-                #print("bound")
+                pass
         '''
         # Is food good for training? Because actually with a static objective, agents will tremble
-        '''
         for food in world.food:
             if self.is_collision(agent, food):
-                rew += 1
-                #print("food")
-        '''
+                #rew += 1
+                #self.food_succ = True
+                self.food_num += 1
         # I think this is better for food
         #rew += 0.1 * min([np.sqrt(np.sum(np.square(food.state.p_pos - agent.state.p_pos))) for food in world.food])
         rew -= 0.1 * min([np.sqrt(np.sum(np.square(food.state.p_pos - agent.state.p_pos))) for food in world.food]) # want to get nearer to one of the foods
@@ -299,7 +323,6 @@ class Scenario(BaseScenario):
     def adversary_reward(self, agent, world):
         # Adversary agents are rewarded based on minimum agent distance to each good agent(Shape:true)
         rew = 0
-        succ = 0
         shape = True
         agents = self.good_agents(world)
         adversaries = self.adversaries(world)
@@ -311,31 +334,12 @@ class Scenario(BaseScenario):
                 for adv in adversaries:
                     if self.is_collision(ag, adv, 1.5): # 3.5
                         i += 1
-
-                #only count on one police
-                if "0" in agent.name and i: #print(i)
-                # too strict
-                #if i == self.num_cooperator:
+                if i:
+                #if i == self.num_cooperator: # too strict
                     rew += 50
-                    succ += 1
-                #else:
-                #    rew += 1 * abs(self.num_cooperator - i)
-
-                # simplified
-                #rew += 5 * i
-
-        # Calculate success rate(precision)
-        '''
-        if "0" in agent.name and succ:
-            fr = open("/home/crai/results/metrics/succ_rate_maddpg.txt","r")
-            old_succ = fr.readline()
-            fr.close()
-            fw = open("/home/crai/results/metrics/succ_rate_maddpg.txt","w")
-            fw.write(str(int(old_succ.strip('\n'))+succ))
-            print(int(old_succ.strip('\n'))+succ)
-            fw.close()
-        '''
-
+                    if "0" in agent.name: #only count by one police
+                        #self.catch_succ = True
+                        self.catch_num += 1
         return rew
 
     # Observation settings below is very important!! Keep in mind!! Need more modifications!!
@@ -466,3 +470,4 @@ class Scenario(BaseScenario):
         else:
             # only good agents themselves know their sweet points(food); their are not communicated with adveraries
             return np.concatenate([agent.state.p_vel] + [agent.state.p_pos] + entity_pos + other_pos + other_vel + in_forest + food_pos) # change for good agent who will chase food at the same time
+
