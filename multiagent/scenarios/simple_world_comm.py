@@ -168,16 +168,16 @@ class Scenario(BaseScenario):
                 #agent.state.p_pos = np.array([randomInit[0][0] / 25.0, randomInit[0][1] / 41.25])
 
                 # Metrics
-                #agent.state.p_pos = np.array([ksu.init_plaza[0] / 25.0, ksu.init_plaza[1] / 41.25])
+                agent.state.p_pos = np.array([ksu.init_plaza[0] / 25.0, ksu.init_plaza[1] / 41.25])
 
                 # Completely ramdom starting positions for criminal
-
+                '''
                 randomInit = random.sample(ksu.escaper_starter_range,1)
                 secure_random = random.SystemRandom()
                 escaper_x = secure_random.uniform(randomInit[0][0][0],randomInit[0][0][1])
                 escaper_y = secure_random.uniform(randomInit[0][1][0],randomInit[0][1][1])
                 agent.state.p_pos = np.array([escaper_x / 25.0, escaper_y / 41.25])
-
+                '''
             agent.state.p_vel = np.zeros(world.dim_p)
             agent.state.c = np.zeros(world.dim_c)
         for i, lawns in enumerate(world.lawns):
@@ -185,16 +185,15 @@ class Scenario(BaseScenario):
             lawns.state.p_vel = np.zeros(world.dim_p)
 
         # Calculate success rate(precision)
-        '''
         if self.catch_num > self.food_num:
             fr = open("/home/crai/results/metrics/succ_rate_maddpg.txt","r")
             old_succ = fr.readline()
             fr.close()
             fw = open("/home/crai/results/metrics/succ_rate_maddpg.txt","w")
-            fw.write(str(int(old_succ.strip('\n'))+self.catch_num-self.food_num))
-            print(int(old_succ.strip('\n'))+self.catch_num-self.food_num)
+            fw.write(str(int(old_succ.strip('\n'))+1))
+            #fw.write(str(int(old_succ.strip('\n'))+self.catch_num-self.food_num))
+            #print(int(old_succ.strip('\n'))+self.catch_num-self.food_num)
             fw.close()
-        '''
         # Metrics para reset for each episode
         #self.catch_succ = False
         #self.food_succ = False

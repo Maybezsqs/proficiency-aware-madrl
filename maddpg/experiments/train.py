@@ -31,13 +31,12 @@ fw = open(homeuser+filename+".txt","w+")
 fw.write('0')
 fw.close()
 
-
 def parse_args():
     parser = argparse.ArgumentParser("Reinforcement Learning experiments for multiagent environments")
     # Environment
     parser.add_argument("--scenario", type=str, default="simple_world_comm", help="name of the scenario script") # or simple_world_comm_5v2
     parser.add_argument("--max-episode-len", type=int, default=25, help="maximum episode length")
-    parser.add_argument("--num-episodes", type=int, default=20000, help="number of episodes")
+    parser.add_argument("--num-episodes", type=int, default=500, help="number of episodes")
     parser.add_argument("--num-adversaries", type=int, default=3, help="number of adversaries")
     parser.add_argument("--num-targets", type=int, default=3, help="number of static targets(food) for criminals")
     parser.add_argument("--good-policy", type=str, default="maddpg", help="policy for good agents")
@@ -51,7 +50,7 @@ def parse_args():
     parser.add_argument("--exp-name", type=str, default="defaultname", help="name of the experiment")
     parser.add_argument("--save-dir", type=str, default=homeuser+"results/", help="directory in which training state and model should be saved")
     parser.add_argument("--save-rate", type=int, default=1000, help="save model once every time this many episodes are completed")
-    parser.add_argument("--draw-reward-rate", type=int, default=250, help="for good learning curve drawing, this will save the results more frequently") # 250
+    parser.add_argument("--draw-reward-rate", type=int, default=2, help="for good learning curve drawing, this will save the results more frequently") # 250
     parser.add_argument("--load-dir", type=str, default="", help="directory in which training state and model are loaded")
     # Evaluation
     parser.add_argument("--restore", action="store_true", default=False)
@@ -194,7 +193,7 @@ def train(arglist):
                 time.sleep(0.1)
                 env.render()
                 continue
-
+            '''
             # update all trainers, if not in display or benchmark mode
             loss = None
             for agent in trainers:
@@ -218,7 +217,7 @@ def train(arglist):
                 #final_ep_rewards.append(np.mean(episode_rewards[-arglist.save_rate:]))
                 #for rew in agent_rewards:
                 #    final_ep_ag_rewards.append(np.mean(rew[-arglist.save_rate:]))
-
+            '''
             # Keep track of final episode reward more frequently for drawing learning curve
             if terminal and i_episode % arglist.draw_reward_rate == 0:
                 final_ep_rewards.append(np.mean(episode_rewards[-arglist.draw_reward_rate:]))
