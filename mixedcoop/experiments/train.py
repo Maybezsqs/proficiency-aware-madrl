@@ -26,8 +26,12 @@ win = None
 # alias for your home directory
 homeuser = "/home/crai/" # /home/yijiang/
 
+<<<<<<< HEAD:mixedcoop/experiments/train.py
 # for benchmarking
 filename = "results/metrics/succ_rate_mixdrl" #"results/trajectory/trajectory"
+=======
+filename = "results/metrics/succ_rate_maddpg" #"results/trajectory/trajectory"
+>>>>>>> e97daf82e6bb5a2d7c049699204f346785345fe9:maddpg/experiments/train.py
 fw = open(homeuser+filename+".txt","w+")
 fw.write('0')
 fw.close()
@@ -37,7 +41,11 @@ def parse_args():
     # Environment
     parser.add_argument("--scenario", type=str, default="simple_world_comm", help="name of the scenario script") # or simple_world_comm_5v2
     parser.add_argument("--max-episode-len", type=int, default=25, help="maximum episode length")
+<<<<<<< HEAD:mixedcoop/experiments/train.py
     parser.add_argument("--num-episodes", type=int, default=25000, help="number of episodes") #500
+=======
+    parser.add_argument("--num-episodes", type=int, default=500, help="number of episodes")
+>>>>>>> e97daf82e6bb5a2d7c049699204f346785345fe9:maddpg/experiments/train.py
     parser.add_argument("--num-adversaries", type=int, default=3, help="number of adversaries")
     parser.add_argument("--num-targets", type=int, default=3, help="number of static targets(food) for criminals")
     parser.add_argument("--good-policy", type=str, default="mixdrl", help="policy for good agents")
@@ -194,7 +202,11 @@ def train(arglist):
                 time.sleep(0.1)
                 env.render()
                 continue
+<<<<<<< HEAD:mixedcoop/experiments/train.py
 
+=======
+            '''
+>>>>>>> e97daf82e6bb5a2d7c049699204f346785345fe9:maddpg/experiments/train.py
             # update all trainers, if not in display or benchmark mode
             loss = None
             for agent in trainers:
@@ -259,5 +271,6 @@ def train(arglist):
 if __name__ == '__main__':
     arglist = parse_args()
     train(arglist)
+
 
 
