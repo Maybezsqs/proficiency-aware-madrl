@@ -17,21 +17,11 @@ utc_now = pytz.utc.localize(datetime.datetime.utcnow())
 t_eastern= utc_now.astimezone(pytz.timezone("America/New_York"))
 t_now_format = str(t_eastern.month) + '-' + str(t_eastern.day) + '-' + str(t_eastern.hour) + '-' + str(t_eastern.minute)
 
-'''
-import visdom
-vis = visdom.Visdom(port=5274)
-win = None
-'''
-
 # alias for your home directory
 homeuser = "/home/crai/" # /home/yijiang/
 
-<<<<<<< HEAD:mixedcoop/experiments/train.py
 # for benchmarking
 filename = "results/metrics/succ_rate_mixdrl" #"results/trajectory/trajectory"
-=======
-filename = "results/metrics/succ_rate_maddpg" #"results/trajectory/trajectory"
->>>>>>> e97daf82e6bb5a2d7c049699204f346785345fe9:maddpg/experiments/train.py
 fw = open(homeuser+filename+".txt","w+")
 fw.write('0')
 fw.close()
@@ -41,11 +31,7 @@ def parse_args():
     # Environment
     parser.add_argument("--scenario", type=str, default="simple_world_comm", help="name of the scenario script") # or simple_world_comm_5v2
     parser.add_argument("--max-episode-len", type=int, default=25, help="maximum episode length")
-<<<<<<< HEAD:mixedcoop/experiments/train.py
     parser.add_argument("--num-episodes", type=int, default=25000, help="number of episodes") #500
-=======
-    parser.add_argument("--num-episodes", type=int, default=500, help="number of episodes")
->>>>>>> e97daf82e6bb5a2d7c049699204f346785345fe9:maddpg/experiments/train.py
     parser.add_argument("--num-adversaries", type=int, default=3, help="number of adversaries")
     parser.add_argument("--num-targets", type=int, default=3, help="number of static targets(food) for criminals")
     parser.add_argument("--good-policy", type=str, default="mixdrl", help="policy for good agents")
@@ -202,11 +188,7 @@ def train(arglist):
                 time.sleep(0.1)
                 env.render()
                 continue
-<<<<<<< HEAD:mixedcoop/experiments/train.py
 
-=======
-            '''
->>>>>>> e97daf82e6bb5a2d7c049699204f346785345fe9:maddpg/experiments/train.py
             # update all trainers, if not in display or benchmark mode
             loss = None
             for agent in trainers:
@@ -234,26 +216,6 @@ def train(arglist):
             # Keep track of final episode reward more frequently for drawing learning curve
             if terminal and i_episode % arglist.draw_reward_rate == 0:
                 final_ep_rewards.append(np.mean(episode_rewards[-arglist.draw_reward_rate:]))
-                '''
-                # on-line plotting learning curve
-                mean_episode_reward = np.mean(episode_rewards[-arglist.draw_reward_rate:])
-                if win is None:
-                    win = vis.line(X=np.arange(i_episode, i_episode+1),
-                                    Y=np.array([
-                                    np.append(mean_episode_reward, rr)]),
-                                    opts=dict(
-                                        ylabel='Mean Episode Reward',
-                                        xlabel='Episode',
-                                        title='Proficiency-Aware MAAC in KSU_World\n' +
-                                        '%d police, %d criminal, 2 cooperator, %d target, \n' % 
-                                            (num_adversaries, env.n - num_adversaries, arglist.num_targets),
-                                        legend=['Total'] + ['Robot-%d' % i for i in range(env.n)]))
-                else:
-                    vis.line(X=np.array([np.array(i_episode).repeat(env.n+1)]),
-                                Y=np.array([np.append(mean_episode_reward, rr)]),
-                                win=win,
-                                update='append')
-                '''
                 for rew in agent_rewards:
                     final_ep_ag_rewards.append(np.mean(rew[-arglist.draw_reward_rate:]))
 
@@ -271,6 +233,3 @@ def train(arglist):
 if __name__ == '__main__':
     arglist = parse_args()
     train(arglist)
-
-
-

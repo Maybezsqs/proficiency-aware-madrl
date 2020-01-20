@@ -163,32 +163,20 @@ class Scenario(BaseScenario):
                 agent.state.p_pos = np.array([ksu.red_chaser_init_pos[i][0] / 25.0, ksu.red_chaser_init_pos[i][1] / 41.25])
             else:
                 random.seed(time.time() * 10000 / 403.712 - 100)
-                # Finite possible starting positions for criminal
+                # 1) Finite possible starting positions for criminal
                 #randomInit = random.sample(ksu.green_escaper_init_pos,1)
                 #agent.state.p_pos = np.array([randomInit[0][0] / 25.0, randomInit[0][1] / 41.25])
 
-                # Metrics
-<<<<<<< HEAD
+                # 2) Benchmarking: task-adaptive
                 #agent.state.p_pos = np.array([ksu.init_plaza[0] / 25.0, ksu.init_plaza[1] / 41.25])
 
-                # Completely ramdom starting positions for criminal
-
-=======
-                agent.state.p_pos = np.array([ksu.init_plaza[0] / 25.0, ksu.init_plaza[1] / 41.25])
-
-                # Completely ramdom starting positions for criminal
-                '''
->>>>>>> e97daf82e6bb5a2d7c049699204f346785345fe9
+                # 3) Completely ramdom starting positions for criminal: training
                 randomInit = random.sample(ksu.escaper_starter_range,1)
                 secure_random = random.SystemRandom()
                 escaper_x = secure_random.uniform(randomInit[0][0][0],randomInit[0][0][1])
                 escaper_y = secure_random.uniform(randomInit[0][1][0],randomInit[0][1][1])
                 agent.state.p_pos = np.array([escaper_x / 25.0, escaper_y / 41.25])
-<<<<<<< HEAD
 
-=======
-                '''
->>>>>>> e97daf82e6bb5a2d7c049699204f346785345fe9
             agent.state.p_vel = np.zeros(world.dim_p)
             agent.state.c = np.zeros(world.dim_c)
         for i, lawns in enumerate(world.lawns):
@@ -196,28 +184,17 @@ class Scenario(BaseScenario):
             lawns.state.p_vel = np.zeros(world.dim_p)
 
         # Calculate success rate(precision)
-<<<<<<< HEAD
         '''
         if self.catch_num > self.food_num:
             fr = open("/home/crai/results/metrics/succ_rate_mixdrl.txt","r")
             old_succ = fr.readline()
             fr.close()
             fw = open("/home/crai/results/metrics/succ_rate_mixdrl.txt","w")
-=======
-        if self.catch_num > self.food_num:
-            fr = open("/home/crai/results/metrics/succ_rate_maddpg.txt","r")
-            old_succ = fr.readline()
-            fr.close()
-            fw = open("/home/crai/results/metrics/succ_rate_maddpg.txt","w")
->>>>>>> e97daf82e6bb5a2d7c049699204f346785345fe9
             fw.write(str(int(old_succ.strip('\n'))+1))
             #fw.write(str(int(old_succ.strip('\n'))+self.catch_num-self.food_num))
             #print(int(old_succ.strip('\n'))+self.catch_num-self.food_num)
             fw.close()
-<<<<<<< HEAD
         '''
-=======
->>>>>>> e97daf82e6bb5a2d7c049699204f346785345fe9
         # Metrics para reset for each episode
         #self.catch_succ = False
         #self.food_succ = False
