@@ -169,8 +169,9 @@ class World(object):
     # integrate physical state
     def integrate_state(self, p_force): # It is this function that actually changes the state(the position)
         j = 0
-        
-        #fw = open("/home/crai/results/trajectory/trajectory.txt","a")
+
+        # output trajectory for Gazebo
+        fw = open("/home/crai/results/metrics/trajectory/trajectory.txt","a")
         
         for i,entity in enumerate(self.entities):
             if not entity.movable: continue
@@ -186,15 +187,15 @@ class World(object):
             entity.state.p_vel[1] /= 1.65 # TODO scaling set_bounds in environment.py
             entity.state.p_pos += entity.state.p_vel * self.dt
 
-            # output trajectory
-            '''
+            # output trajectory for Gazebo
+
             fw.write(str(entity.state.p_pos[0]*25.0)+","+str(entity.state.p_pos[1]*41.25))
             if j < len(self.agents):
                 fw.write(",")
             else:
                 fw.write("\n")
                 fw.close()
-            '''
+
 
     def update_agent_state(self, agent):
         # set communication state (directly for now)
@@ -253,7 +254,7 @@ class World(object):
         delta_pos = entity_a.state.p_pos - entity_b.state.p_pos
         dist = np.sqrt(np.sum(np.square(delta_pos)))
         # minimum allowable distance
-        dist_min = entity_a.size + entity_b.size + 2.0 / 25.0
+        dist_min = entity_a.size + entity_b.size + 1.0 / 25.0
         # softmax penetration
         k = self.contact_margin
         penetration = np.logaddexp(0, -(dist - dist_min)/k)*k

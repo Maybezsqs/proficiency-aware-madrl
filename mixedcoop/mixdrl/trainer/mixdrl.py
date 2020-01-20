@@ -1,11 +1,11 @@
 import numpy as np
 import random
 import tensorflow as tf
-import maddpg.common.tf_util as U
+import mixdrl.common.tf_util as U
 
-from maddpg.common.distributions import make_pdtype
-from maddpg import AgentTrainer
-from maddpg.trainer.replay_buffer import ReplayBuffer
+from mixdrl.common.distributions import make_pdtype
+from mixdrl import AgentTrainer
+from mixdrl.trainer.replay_buffer import ReplayBuffer
 
 
 def discount_with_dones(rewards, dones, gamma):
@@ -109,7 +109,7 @@ def q_train(make_obs_ph_n, act_space_n, q_index, q_func, optimizer, grad_norm_cl
 
         return train, update_target_q, {'q_values': q_values, 'target_q_values': target_q_values}
 
-class MADDPGAgentTrainer(AgentTrainer):
+class MIXDRLAgentTrainer(AgentTrainer):
     def __init__(self, name, model, obs_shape_n, act_space_n, agent_index, args, local_q_func=False):
         self.name = name
         self.n = len(obs_shape_n)
@@ -161,7 +161,7 @@ class MADDPGAgentTrainer(AgentTrainer):
     def update(self, agents, t):
         if len(self.replay_buffer) < self.max_replay_buffer_len: # replay buffer is not large enough
             return
-        if not t % 100 == 0:  # only update every 100 train_step in train.py
+        if not t % 100 == 0:  # only update every 100 train_step (steps in total) in train.py
             return
 
         self.replay_sample_index = self.replay_buffer.make_index(self.args.batch_size)

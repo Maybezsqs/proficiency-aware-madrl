@@ -301,10 +301,10 @@ class Scenario(BaseScenario):
         # Calculate success rate(precision)
         '''
         if "0" in agent.name and succ:
-            fr = open("/home/crai/results/metrics/succ_rate_maddpg.txt","r")
+            fr = open("/home/crai/results/metrics/succ_rate_mixdrl.txt","r")
             old_succ = fr.readline()
             fr.close()
-            fw = open("/home/crai/results/metrics/succ_rate_maddpg.txt","w")
+            fw = open("/home/crai/results/metrics/succ_rate_mixdrl.txt","w")
             fw.write(str(int(old_succ.strip('\n'))+succ))
             fw.close()
         '''

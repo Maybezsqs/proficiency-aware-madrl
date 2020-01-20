@@ -1,14 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-Spyder Editor
-
-This is a temporary script file.
-"""
 
 import pickle#, pprint
 import argparse
 
-parser = argparse.ArgumentParser("Read data points for MADRL")
+parser = argparse.ArgumentParser("Read data points for Mix-DRL")
 parser.add_argument("--pkl-dir", type=str, default="", help="directory in which .pkl is saved")
 parser.add_argument("--split", type=int, default=0, help="process the data for each agent")
 arglist = parser.parse_args()

@@ -1,4 +1,3 @@
-
 # 和gazebo交互的问题
 # UAV1 单位时间内位移距离最好不要超过1.8，而UAV2因为是六旋翼，比较稳定，所以可以
 
@@ -8,8 +7,8 @@ import tensorflow as tf
 import time
 import pickle
 
-import maddpg.common.tf_util as U
-from maddpg.trainer.maddpg import MADDPGAgentTrainer
+import mixdrl.common.tf_util as U
+from mixdrl.trainer.mixdrl import MIXDRLAgentTrainer
 import tensorflow.contrib.layers as layers
 
 import datetime
@@ -24,24 +23,25 @@ vis = visdom.Visdom(port=5274)
 win = None
 '''
 
+# alias for your home directory
 homeuser = "/home/crai/" # /home/yijiang/
-'''
-filename = "results/metrics/succ_rate_maddpg" #"results/trajectory/trajectory"
+
+# for benchmarking
+filename = "results/metrics/succ_rate_mixdrl" #"results/trajectory/trajectory"
 fw = open(homeuser+filename+".txt","w+")
 fw.write('0')
 fw.close()
-'''
 
 def parse_args():
     parser = argparse.ArgumentParser("Reinforcement Learning experiments for multiagent environments")
     # Environment
     parser.add_argument("--scenario", type=str, default="simple_world_comm", help="name of the scenario script") # or simple_world_comm_5v2
     parser.add_argument("--max-episode-len", type=int, default=25, help="maximum episode length")
-    parser.add_argument("--num-episodes", type=int, default=100, help="number of episodes")
+    parser.add_argument("--num-episodes", type=int, default=25000, help="number of episodes") #500
     parser.add_argument("--num-adversaries", type=int, default=3, help="number of adversaries")
     parser.add_argument("--num-targets", type=int, default=3, help="number of static targets(food) for criminals")
-    parser.add_argument("--good-policy", type=str, default="maddpg", help="policy for good agents")
-    parser.add_argument("--adv-policy", type=str, default="maddpg", help="policy of adversaries")
+    parser.add_argument("--good-policy", type=str, default="mixdrl", help="policy for good agents")
+    parser.add_argument("--adv-policy", type=str, default="mixdrl", help="policy of adversaries")
     # Core training parameters
     parser.add_argument("--lr", type=float, default=1e-2, help="learning rate for Adam optimizer")
     parser.add_argument("--gamma", type=float, default=0.95, help="discount factor")
@@ -51,7 +51,7 @@ def parse_args():
     parser.add_argument("--exp-name", type=str, default="defaultname", help="name of the experiment")
     parser.add_argument("--save-dir", type=str, default=homeuser+"results/", help="directory in which training state and model should be saved")
     parser.add_argument("--save-rate", type=int, default=1000, help="save model once every time this many episodes are completed")
-    parser.add_argument("--draw-reward-rate", type=int, default=1, help="for good learning curve drawing, this will save the results more frequently")
+    parser.add_argument("--draw-reward-rate", type=int, default=2, help="for good learning curve drawing, this will save the results more frequently") # 250
     parser.add_argument("--load-dir", type=str, default="", help="directory in which training state and model are loaded")
     # Evaluation
     parser.add_argument("--restore", action="store_true", default=False)
@@ -89,7 +89,7 @@ def make_env(scenario_name, arglist, benchmark=False):
 def get_trainers(env, num_adversaries, obs_shape_n, arglist):
     trainers = []
     model = mlp_model
-    trainer = MADDPGAgentTrainer
+    trainer = MIXDRLAgentTrainer
     # First adversaries, then good agents
     for i in range(num_adversaries):
         trainers.append(trainer(
@@ -143,7 +143,7 @@ def train(arglist):
         print('Starting iterations...')
         while True:
             # get action: for each agent i, select action ai = i (oi) + Nt w.r.t. the current policy and exploration
-            # Through training(maddpg)
+            # Through training
             action_n = [agent.action(obs) for agent, obs in zip(trainers,obs_n)] # obs_n: 4x62(first) then 4x56; 4 because of 4 agents(trainers) in total
             # environment step: Execute actions a = (a1; : : : ; aN) and observe reward r and new state x0
             new_obs_n, rew_n, done_n, info_n = env.step(action_n)
@@ -153,7 +153,7 @@ def train(arglist):
             terminal = (episode_step >= arglist.max_episode_len)
             # collect experience
             for i, agent in enumerate(trainers):
-                agent.experience(obs_n[i], action_n[i], rew_n[i], new_obs_n[i], done_n[i], terminal) # remember this experience in buffer (maddpg)
+                agent.experience(obs_n[i], action_n[i], rew_n[i], new_obs_n[i], done_n[i], terminal) # remember this experience in buffer
             # x <-- x'
             obs_n = new_obs_n
 
@@ -194,8 +194,7 @@ def train(arglist):
                 time.sleep(0.1)
                 env.render()
                 continue
-            
-            '''
+
             # update all trainers, if not in display or benchmark mode
             loss = None
             for agent in trainers:
@@ -219,7 +218,7 @@ def train(arglist):
                 #final_ep_rewards.append(np.mean(episode_rewards[-arglist.save_rate:]))
                 #for rew in agent_rewards:
                 #    final_ep_ag_rewards.append(np.mean(rew[-arglist.save_rate:]))
-            '''
+
             # Keep track of final episode reward more frequently for drawing learning curve
             if terminal and i_episode % arglist.draw_reward_rate == 0:
                 final_ep_rewards.append(np.mean(episode_rewards[-arglist.draw_reward_rate:]))
